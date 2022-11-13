@@ -1,0 +1,19 @@
+.home {
+  min-height: 100vh;
+
+  .layout {
+    display: flex;
+    margin-top: 10px;
+
+    .slider {
+      width: 200px;
+      margin-left: 10px;
+      padding: 5px 10px;
+
+      //重写antd-menu样式
+      .ant-menu-inline .ant-menu-item-selected::after {
+        display: none;
+      }
+    }
+  }
+}

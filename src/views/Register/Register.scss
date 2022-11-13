@@ -1,0 +1,172 @@
+.register {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 750px;
+  background: url(@/assets/loginBackgroud.jpg);
+  background-size: cover;
+
+  .register-box {
+    display: flex;
+    width: 600px;
+    height: 400px;
+    box-shadow: 0 5px 12px 10px rgba(0, 0, 0, 0.5);
+
+    .glass {
+      width: 300px;
+      height: 100%;
+      backdrop-filter: blur(20px);
+      background: transparent;
+    }
+
+    .register-form {
+      display: flex;
+      flex-direction: column;
+      width: 300px;
+      height: 100%;
+      background-color: #f0f0f0;
+      overflow: hidden;
+
+      .title {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 80px;
+        font-style: italic;
+        color: #434343;
+        margin: 0;
+        margin-top: 40px;
+      }
+
+      .register-card {
+        display: flex;
+        width: 200%;
+        height: 280px;
+        padding-top: 20px;
+        background-color: #f0f0f0;
+        transition: 0.4s ease-out;
+        position: relative;
+
+        .left {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          flex-shrink: 0;
+          width: 50%;
+          height: 100%;
+          padding-top: 25px;
+          position: relative;
+
+          .capcha-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 160px;
+
+            .capcha {
+              width: 90px;
+            }
+
+            .capcha-send {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              width: 70px;
+              font-size: 10px;
+              color: gray;
+              cursor: pointer;
+
+              i {
+                padding-left: 4px;
+                font-style: normal;
+                font-size: 8px;
+              }
+            }
+          }
+        }
+
+        .right {
+          display: flex;
+          justify-content: center;
+          flex-direction: column;
+          align-items: center;
+          flex-shrink: 0;
+          width: 50%;
+          height: 100%;
+          position: relative;
+        }
+
+        .loading {
+          position: absolute;
+          top: 0;
+          left: 0;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 300px;
+          height: 100%;
+          backdrop-filter: blur(1px);
+          z-index: 1;
+        }
+      }
+    }
+
+    .transform {
+      transform: translateX(-50%);
+    }
+
+    .form-item {
+      width: 300px;
+    }
+
+    .ant-input-affix-wrapper,
+    input {
+      border: 0;
+      box-shadow: none;
+      background-color: #f0f0f0;
+    }
+
+    .input {
+      width: 160px;
+      background-color: #f0f0f0 !important;
+      border-bottom: 1px solid #8c8c8c;
+      box-shadow: none !important;
+    }
+
+    .ant-input-affix-wrapper-focused,
+    .input:focus {
+      border-bottom: 2px solid #52c41a;
+    }
+
+    .ant-input-affix-wrapper-status-error,
+    .ant-input-status-error {
+      background-color: #f0f0f0;
+      border: 0;
+      border-bottom: 1px solid #ff4d4f !important;
+    }
+
+    .next {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+      font-size: 10px;
+    }
+
+    .back {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      font-size: 10px;
+      background-color: #f0f0f0;
+      border: 0;
+      box-shadow: none;
+    }
+    
+    //消除antd按钮光晕
+    .back::after {
+      animation: none;
+    }
+  }
+}

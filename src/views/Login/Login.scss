@@ -1,0 +1,123 @@
+.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  background: url('@/assets/loginBackgroud.jpg') no-repeat;
+  background-size: cover;
+
+  .login-box {
+    display: flex;
+    width: 600px;
+    height: 400px;
+    box-shadow: 0 5px 12px 10px rgba(0, 0, 0, 0.5);
+
+    @media screen and (max-width: 750px) {
+      width: 300px;
+    }
+
+    .left {
+      width: 300px;
+      height: 100%;
+      padding-left: 50px;
+      backdrop-filter: blur(20px);
+      background: transparent;
+
+      @media screen and (max-width: 750px) {
+        display: none;
+      }
+
+      .info {
+        font-size: 40px;
+        font-weight: 900;
+        color: #fff;
+      }
+    }
+
+    .right {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      width: 300px;
+      height: 100%;
+      padding: 20px;
+      background-color: #f0f0f0;
+
+      .title {
+        font-style: italic;
+        color: #434343;
+      }
+
+      .button {
+        background-color: #52c41a;
+        border: 1px solid #52c41a;
+        color: #fafafa;
+      }
+
+      .link {
+        color: #8c8c8c;
+        cursor: pointer;
+
+        &:hover {
+          color: #bfbfbf;
+        }
+      }
+
+      .register-link {
+        position: absolute;
+        left: 10px;
+        bottom: 10px;
+        font-size: 12px;
+      }
+
+      .forget-link {
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+        font-size: 12px;
+      }
+    }
+  }
+
+  //重写antd-input样式
+  .ant-input,
+  .ant-input-affix-wrapper {
+    border: none;
+    border-bottom: 1px solid #8c8c8c;
+    background-color: #f0f0f0;
+    box-shadow: none;
+
+    &:hover {
+      border-color: #52c41a;
+      border-right-width: 0;
+      z-index: 0;
+    }
+  }
+
+  .ant-input:focus {
+    border-bottom: 2px solid #52c41a;
+  }
+
+  .ant-input-affix-wrapper .ant-input {
+    border: none;
+  }
+
+  .ant-input-affix-wrapper-focused {
+    border-bottom: 2px solid #52c41a;
+
+    .ant-input {
+      border: none;
+    }
+  }
+  
+  .ant-input-affix-wrapper-status-error:not(.ant-input-affix-wrapper-disabled):not(.ant-input-affix-wrapper-borderless).ant-input-affix-wrapper,
+  .ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input {
+    border: none;
+    border-bottom: 1px solid #ff4d4f;
+    background-color: #f0f0f0;
+    box-shadow: none;
+  }
+}
