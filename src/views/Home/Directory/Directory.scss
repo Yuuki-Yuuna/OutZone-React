@@ -1,0 +1,144 @@
+.directory {
+  display: flex;
+
+  .content {
+    min-width: 500px;
+
+    .tools {
+      display: flex;
+      padding: 5px 10px;
+
+      .upload {
+        background-color: #40a9ff;
+
+        b {
+          margin-left: 5px;
+        }
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: 20px;
+        background-color: #e6f7ff;
+        border-radius: 15px;
+        overflow: hidden;
+
+        .button {
+          position: relative;
+          padding: 0 12px;
+
+          &::after {
+            position: absolute;
+            content: '|';
+            color: #bae7ff;
+            right: -3px;
+          }
+
+          button {
+            border: 0;
+            background-color: #e6f7ff;
+            font-weight: 700;
+            color: #06a7ff;
+            cursor: pointer;
+          }
+
+          .icon {
+            margin-right: 5px;
+          }
+        }
+      }
+    }
+
+    .title {
+      margin: 5px 0;
+      padding-left: 12px;
+
+      h4 {
+        font-size: 12px;
+        font-weight: 700;
+      }
+    }
+
+    //含有antd样式修改
+    .table {
+      padding-left: 2px;
+
+      th {
+        font-size: 14px;
+        font-weight: 700;
+        color: #818999;
+        background-color: #fff;
+
+        &::before {
+          display: none;
+        }
+      }
+
+      td {
+        padding: 5px 16px;
+      }
+
+      //antd-table实现hover原理
+      .ant-table-cell-row-hover {
+        background-color: #f2faff;
+
+        .text {
+          max-width: calc(100% - 90px);
+        }
+
+        .button-group {
+          display: flex !important;
+        }
+
+        .info {
+          visibility: hidden;
+        }
+      }
+
+      .file-selection {
+        cursor: pointer;
+
+        .text {
+          display: inline-block;
+          height: 40px;
+          line-height: 40px;
+          padding-left: 12px;
+          vertical-align: middle;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+
+          &:hover {
+            color: #06a7ff;
+          }
+        }
+      }
+
+      .date-selection {
+        position: relative;
+
+        .button-group {
+          position: absolute;
+          top: 50%;
+          right: 100%;
+          transform: translateY(-50%);
+          display: none;
+          justify-content: center;
+          align-items: center;
+
+          .button {
+            padding: 0 2px;
+            color: #06a7ff;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+  }
+
+  .preview {
+    width: 600px;
+  }
+}

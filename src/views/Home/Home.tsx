@@ -1,17 +1,20 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import './Home.scss'
 import Navigation from '@/compnents/Navigation/Navigation'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { Menu } from 'antd'
 import { FolderOutlined, FileOutlined, FolderOpenOutlined, FileImageOutlined, CustomerServiceOutlined, PlayCircleOutlined, EllipsisOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 
 const Home: React.FC = () => {
-  // const test = (a: any, b: any, c: any) => {
-  //   console.log(a, b, c)
-  // }
-  const select = (a: any, b: any) => {
-    console.log(a, b)
+  const navigate = useNavigate()
+
+  const changeDisplay: MenuProps['onClick'] = (event) => {
+    if (event.key == 'image') {
+      navigate('/home/timeline')
+    } else {
+      navigate(`/home/directory/${event.key}`)
+    }
   }
 
   const items: MenuProps['items'] = [
@@ -70,12 +73,13 @@ const Home: React.FC = () => {
             mode='inline'
             defaultOpenKeys={['file']}
             items={items}
-            // onClick={test}
-            // onSelect={select}
+            onClick={changeDisplay}
           />
         </div>
         <div className='content'>
-          <Outlet />
+          <Suspense>
+            <Outlet />
+          </Suspense>
         </div>
       </div>
     </div>

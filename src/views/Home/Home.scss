@@ -4,16 +4,25 @@
   .layout {
     display: flex;
     margin-top: 10px;
+    height: calc(100vh - 90px);
 
     .slider {
       width: 200px;
       margin-left: 10px;
       padding: 5px 10px;
 
+      @media screen and (max-width: 750px) {
+        display: none;
+      }
+
       //重写antd-menu样式
       .ant-menu-inline .ant-menu-item-selected::after {
         display: none;
       }
+    }
+
+    .content {
+      width: calc(100vw - 210px);
     }
   }
 }

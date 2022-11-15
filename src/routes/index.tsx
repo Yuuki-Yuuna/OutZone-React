@@ -10,7 +10,7 @@ const Timeline = lazy(() => import('@/views/Home/Timeline/Timeline'))
 const routes: RouteObject[] = [
   {
     path: '/',
-    element: <Navigate to='/login' />
+    element: <Navigate to='/home' />
   },
   {
     path: '/login',
@@ -22,10 +22,10 @@ const routes: RouteObject[] = [
     children: [
       {
         path: '',//默认二级路由
-        element: <Navigate to={'directory'} />
+        element: <Navigate to={'directory/all'} />
       },
       {
-        path: 'directory',
+        path: 'directory/:category',
         element: <Directory />
       },
       {
