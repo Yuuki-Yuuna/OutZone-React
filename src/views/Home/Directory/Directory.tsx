@@ -1,8 +1,9 @@
 import React from 'react'
 import './Directory.scss'
 import { checkFileType } from '@/util/file'
-import { Button, Table, Image } from 'antd'
-import { UploadOutlined, FolderAddOutlined, FileAddOutlined, ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined } from '@ant-design/icons'
+import { Button, Table, Image, Dropdown } from 'antd'
+import { UploadOutlined, FolderAddOutlined, FileAddOutlined, ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined } from '@ant-design/icons'
+import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { FileInfomation } from '@/type/File'
 
@@ -45,6 +46,36 @@ const Directory: React.FC = () => {
       size: '36.2M',
       isFolder: false,
       directory: '/'
+    }
+  ]
+
+  const dropdownItems: MenuProps['items'] = [
+    {
+      key: 'copy',
+      label: (
+        <div>
+          <CopyOutlined />
+          <span>复制</span>
+        </div>
+      )
+    },
+    {
+      key: 'move',
+      label: (
+        <div>
+          <DragOutlined />
+          <span>移动</span>
+        </div>
+      )
+    },
+    {
+      key: 'share',
+      label: (
+        <div>
+          <UsergroupAddOutlined />
+          <span>共享</span>
+        </div>
+      )
     }
   ]
 
@@ -95,7 +126,9 @@ const Directory: React.FC = () => {
             <DownloadOutlined className='button' title='下载' />
             <DeleteOutlined className='button' title='删除' />
             <EditOutlined className='button' title='重命名' />
-            <EllipsisOutlined className='button' />
+            <Dropdown menu={{ items: dropdownItems }} placement='bottom' overlayStyle={{ width: '80px' }}>
+              <EllipsisOutlined className='button' />
+            </Dropdown>
           </div>
         </div>
       )
