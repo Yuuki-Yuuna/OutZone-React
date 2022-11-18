@@ -1,13 +1,14 @@
 import { lazy } from 'react'
-import { Navigate } from 'react-router-dom'
-import type { RouteObject } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
+import RouteBefore from './guard/RouteBefore'
 
 const Login = lazy(() => import('@/views/Login/Login'))
 const Home = lazy(() => import('@/views/Home/Home'))
 const Directory = lazy(() => import('@/views/Home/Directory/Directory'))
 const Timeline = lazy(() => import('@/views/Home/Timeline/Timeline'))
+const Mobile = lazy(() => import('@/views/Mobile/Mobile'))
 
-const routes: RouteObject[] = [
+export default createBrowserRouter([
   {
     path: '/',
     element: <Navigate to='/home' />
@@ -18,11 +19,15 @@ const routes: RouteObject[] = [
   },
   {
     path: '/home',
-    element: <Home />,
+    element: (
+      <RouteBefore to='/home'>
+        <Home />
+      </RouteBefore>
+    ),
     children: [
       {
         path: '',//默认二级路由
-        element: <Navigate to={'directory/all'} />
+        element: <Navigate to='directory/all' />
       },
       {
         path: 'directory/:category',
@@ -33,8 +38,13 @@ const routes: RouteObject[] = [
         element: <Timeline />
       }
     ]
+  },
+  {
+    path: '/mobile',
+    element: (
+      <RouteBefore to='/mobile'>
+        <Mobile />
+      </RouteBefore>
+    )
   }
-]
-
-
-export default routes
+])

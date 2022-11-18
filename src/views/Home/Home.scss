@@ -1,4 +1,5 @@
 .home {
+  min-width: 1080px;
   min-height: 100vh;
 
   .layout {
@@ -7,12 +8,21 @@
     height: calc(100vh - 90px);
 
     .slider {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
       width: 200px;
       margin-left: 10px;
       padding: 5px 10px;
 
-      @media screen and (max-width: 750px) {
-        display: none;
+      .progress {
+        margin-bottom: 20px;
+        padding: 0 16px;
+
+        .info {
+          padding: 0 2px;
+          color: #afb3bf;
+        }
       }
 
       //重写antd-menu样式
@@ -23,6 +33,7 @@
 
     .content {
       width: calc(100vw - 210px);
+      flex-grow: 1;
     }
   }
 }

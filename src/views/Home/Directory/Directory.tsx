@@ -1,13 +1,17 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './Directory.scss'
 import { checkFileType } from '@/util/file'
-import { Button, Table, Image, Dropdown } from 'antd'
-import { UploadOutlined, FolderAddOutlined, FileAddOutlined, ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined } from '@ant-design/icons'
+import { Button, Table, Image, Dropdown, Input } from 'antd'
+import { UploadOutlined, FolderAddOutlined, FileAddOutlined, ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { FileInfomation } from '@/type/File'
 
+const { Search } = Input
+
 const Directory: React.FC = () => {
+  let [fold, setFold] = useState(false)//折叠开关
+
   const testData: FileInfomation[] = [
     {
       key: '1',
@@ -156,6 +160,9 @@ const Directory: React.FC = () => {
         </div>
         <div className='title'>
           <h4>{'全部文件'}</h4>
+          <span style={{ display: fold ? 'flex' : 'none' }} onClick={() => setFold(false)}>
+            <LeftOutlined className='icon' />展开
+          </span>
         </div>
         <div className='table'>
           <Table
@@ -167,8 +174,20 @@ const Directory: React.FC = () => {
           />
         </div>
       </div>
-      <div className='preview'>
-
+      <div className='preview' style={{ display: fold ? 'none' : 'block' }}>
+        <div className='search-wrapper'>
+          <Search placeholder="搜索我的文件" onSearch={() => { }} />
+        </div>
+        <div className='title'>
+            <h4>{'文件详情'}</h4>
+            <span onClick={() => setFold(true)}><RightOutlined className='icon' />收起</span>
+          </div>
+        <div className='detail-wrapper'>
+          <div className='empty'>
+            <Image src='/src/assets/img/empty.png' preview={false} width={120}></Image>
+            <p>选中文件/文件夹，查看详情</p>
+          </div>
+        </div>
       </div>
     </div>
   )

@@ -1,11 +1,11 @@
 import React, { Suspense } from 'react'
-import { useRoutes } from 'react-router-dom'
-import routes from './routes'
+import { RouterProvider } from 'react-router-dom'
+import router from './router'
 
 const App: React.FC = () => {
   return (
     <Suspense>
-      {useRoutes(routes)}
+      <RouterProvider router={router} />
     </Suspense>
   )
 }

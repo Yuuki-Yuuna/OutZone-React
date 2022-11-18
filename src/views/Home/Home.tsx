@@ -2,7 +2,7 @@ import React, { Suspense } from 'react'
 import './Home.scss'
 import Navigation from '@/compnents/Navigation/Navigation'
 import { Outlet, useNavigate } from 'react-router-dom'
-import { Menu } from 'antd'
+import { Menu, Progress } from 'antd'
 import { FolderOutlined, FileOutlined, FolderOpenOutlined, FileImageOutlined, CustomerServiceOutlined, PlayCircleOutlined, EllipsisOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 
@@ -75,6 +75,10 @@ const Home: React.FC = () => {
             items={items}
             onClick={changeDisplay}
           />
+          <div className='progress'>
+            <Progress percent={18} showInfo={false} strokeColor='#06a7ff' />
+            <div className='info'>379.2G/2055G</div>
+          </div>
         </div>
         <div className='content'>
           <Suspense>

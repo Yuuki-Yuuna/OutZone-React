@@ -16,42 +16,51 @@ const Navigation: React.FC = () => {
     setDrawerOpen(false)
   }
 
+  const uploadDropdownRender = () => {
+    return (
+      <div className='upload'>
+        <div className='title'>
+          <p>传输列表</p>
+          <h2>上传完成（0/0）</h2>
+        </div>
+        <div className='content'>
+          <p className='empty'>- 仅展示本次上传任务 -</p>
+        </div>
+      </div>
+    )
+  }
   const dropdownItems: MenuProps['items'] = [
     {
-      key: '1',
-      label: <h2>admin</h2>
+      key: 'profile',
+      label: '个人主页'
     },
     {
-      key: '2',
-      label: <div>个人主页</div>
+      key: 'help',
+      label: '帮助中心'
     },
     {
-      key: '3',
-      label: <div>帮助中心</div>
-    },
-    {
-      key: '4',
-      label: <div>退出登录</div>
+      key: 'logout',
+      label: '退出登录'
     }
   ]
   const menuItems: MenuProps['items'] = [
     {
-      key: '1',
+      key: 'file',
       label: '我的文件',
       icon: <FolderOutlined className='icon' />,
-      className: 'menu-items'
+      className: 'menu-item'
     },
     {
-      key: '2',
+      key: 'notification',
       label: '通知管理',
       icon: <BellOutlined className='icon' />,
-      className: 'menu-items'
+      className: 'menu-item'
     },
     {
-      key: '3',
+      key: 'logout',
       label: '退出登录',
       icon: <SwapOutlined className='icon' />,
-      className: 'menu-items'
+      className: 'menu-item'
     }
   ]
 
@@ -64,13 +73,22 @@ const Navigation: React.FC = () => {
       <div className='flex-grow'></div>
       <div className='profile'>
         <Avatar icon={<UserOutlined />} src={'/src/assets/avatar.jpg'} size={42} />
-        <Dropdown menu={{ items: dropdownItems }} placement="bottom" arrow>
+        <Dropdown menu={{ items: dropdownItems }} placement='bottom' arrow>
           <h2>{'admin'}</h2>
         </Dropdown>
         <div className='tools'>
           <Space>
-            <SwapOutlined className='icon' rotate={-90} />
-            <BellOutlined className='icon' />
+            <Dropdown
+              dropdownRender={uploadDropdownRender}
+              placement='bottomRight'
+              trigger={['click']}
+              overlayClassName='upload-dropdown'
+              align={{ offset: [80, 30] }}
+            >
+              {/* align属性antd文档未标出，可以修改下拉框位置 */}
+              <SwapOutlined className='icon' rotate={-90} title='传输列表' />
+            </Dropdown>
+            <BellOutlined className='icon' title='通知管理' />
           </Space>
         </div>
       </div>
@@ -83,7 +101,7 @@ const Navigation: React.FC = () => {
             <Avatar icon={<UserOutlined />} src={'/src/assets/avatar.jpg'} size={50} onClick={openDrawer} />
             <div className='drawer-info'>
               <h2>{'admin'}</h2>
-              <Progress percent={30} showInfo={false} />
+              <Progress percent={30} showInfo={false} strokeColor='#06a7ff' />
               <div>
                 <span style={{ marginRight: '30px' }}>{'20.00G'}/{'2T'}</span>
                 <span>{'30.00%'}</span>

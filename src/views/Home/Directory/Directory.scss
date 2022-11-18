@@ -1,5 +1,6 @@
 .directory {
   display: flex;
+  height: 100%;
 
   .content {
     min-width: 500px;
@@ -52,12 +53,30 @@
     }
 
     .title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       margin: 5px 0;
-      padding-left: 12px;
+      padding: 0 12px;
 
       h4 {
         font-size: 12px;
         font-weight: 700;
+      }
+
+      span {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        font-weight: 400;
+        color: #818999;
+        cursor: pointer;
+
+        .icon {
+          font-size: 10px;
+          margin-right: 6px;
+        }
       }
     }
 
@@ -85,7 +104,7 @@
         background-color: #f2faff;
 
         .text {
-          max-width: calc(100% - 90px);
+          max-width: calc(100% - 110px);
         }
 
         .button-group {
@@ -129,7 +148,7 @@
           align-items: center;
 
           .button {
-            padding: 0 2px;
+            padding: 0 4px;
             color: #06a7ff;
             cursor: pointer;
           }
@@ -139,6 +158,95 @@
   }
 
   .preview {
-    width: 600px;
+    width: 360px;
+    border-left: 1px solid #f0f0f0;
+
+    .search-wrapper {
+      padding: 4px 8px;
+
+      .ant-input-search {
+        padding: 0 5px;
+        border: 1px solid #f1f3f8;
+        border-radius: 18px;
+        overflow: hidden;
+        background-color: #f1f3f8;
+
+        &:hover {
+          border-color: #06a7ff;
+        }
+
+        .ant-input-group>.ant-input-group-addon:last-child .ant-input-search-button,
+        .ant-input {
+          border: none;
+          box-shadow: none;
+          background-color: #f1f3f8;
+          caret-color: #06a7ff;
+          font-size: 12px;
+          height: 32px;
+          font-weight: 500;
+          // box-shadow: 0 0 0 2px rgb(24 144 255 / 20%);
+        }
+
+        .ant-input::placeholder {
+          font-size: 12px;
+        }
+
+        .ant-input-search-button::after {
+          display: none;
+        }
+      }
+    }
+
+    .title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 5px 0;
+      padding: 0 12px;
+
+      h4 {
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      span {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        font-weight: 400;
+        color: #818999;
+        cursor: pointer;
+
+        .icon {
+          font-size: 10px;
+          margin-right: 6px;
+        }
+      }
+    }
+
+    .detail-wrapper {
+      position: relative;
+
+      .empty {
+        position: absolute;
+        top: 150px;
+        left: 50%;
+        transform: translateX(-50%);
+
+        .ant-image {
+          display: block;
+          margin: 0 auto;
+        }
+
+        p {
+          white-space: nowrap;
+          margin: 5px 0 0 0;
+          color: #818999;
+          font-weight: 400;
+          font-size: 12px;
+        }
+      }
+    }
   }
 }

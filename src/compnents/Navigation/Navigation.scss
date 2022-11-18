@@ -55,6 +55,43 @@
   }
 }
 
+.upload-dropdown {
+  width: 360px;
+  height: 240px;
+  box-shadow: 0 2px 8px 0 rgb(0 0 0 / 16%);
+  border-radius: 8px;
+  background: #fff;
+
+  .title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    border-bottom: 1px solid #f4f4f4;
+
+    p {
+      margin: 0;
+      color: #878c9c;
+      letter-spacing: 0;
+      font-size: 12px;
+    }
+
+    h2 {
+      font-size: 14px;
+      font-weight: 600;
+    }
+  }
+
+  .content {
+
+    .empty {
+      text-align: center;
+      color: #afb3bf;
+      font-size: 10px;
+    }
+  }
+}
+
 .drawer {
 
   .drawer-profile {
@@ -75,7 +112,7 @@
     }
   }
 
-  .menu-items {
+  .menu-item {
     display: flex;
     align-items: center;
     height: fit-content;
