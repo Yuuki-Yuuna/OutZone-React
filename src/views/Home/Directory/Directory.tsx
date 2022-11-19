@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useMemo, useRef, useState } from 'react'
 import './Directory.scss'
 import { checkFileType } from '@/util/file'
 import { Button, Table, Image, Dropdown, Input } from 'antd'
@@ -13,8 +13,15 @@ const Directory: React.FC = () => {
   let [fold, setFold] = useState(false)//折叠开关
   const rightMenu = useRef<HTMLDivElement>(null)//自定义右键菜单
   let operationType: OperationType = null
-  let [selectedData, setSelectedData] = useState<FileInformation | null>(null)//当前选中项
   let [selectedDataKeys, setSelectedDataKeys] = useState<React.Key[]>([])//表格选中项key值
+  let [selectedData, setSelectedData] = useState<FileInformation | null>(null)//当前选中项
+  const selectedDataUrl = useMemo(() => {
+    let fileType = 'folder'
+    if (selectedData) {
+      fileType = selectedData?.isFolder ? 'folder' : checkFileType(selectedData.extendname!)
+    }
+    return new URL(`../../../assets/icon/${fileType}.png`, import.meta.url).href
+  }, [selectedData])
 
   const changeOperation = (type: OperationType) => {
     // //柯里化传参，changeOperation渲染时会被调用多次,不要有多余操作
@@ -138,8 +145,8 @@ const Directory: React.FC = () => {
           case 'move': fileMove()
             break
           case 'group': fileGroup()
-          break
-          default: setSelectedDataKeys([record.key])
+            break
+          default: setSelectedData(record), setSelectedDataKeys([record.key])
         }
         operationType = null//操作结束后取消操作
       },
@@ -166,6 +173,9 @@ const Directory: React.FC = () => {
     selectedRowKeys: selectedDataKeys,
     onChange: (selectedRowKeys: React.Key[], selectedRows: FileInformation[]) => {
       setSelectedDataKeys(selectedRowKeys)
+      if (selectedRows.length == 1) {
+        setSelectedData(selectedRows[0])
+      }
       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
     }
   }
@@ -284,13 +294,28 @@ const Directory: React.FC = () => {
           <Search placeholder="搜索我的文件" onSearch={fileSearch} />
         </div>
         <div className='title'>
-          <h4>{'文件详情'}</h4>
+          <h4 style={{ display: selectedDataKeys.length > 1 ? 'block' : 'none' }}>{`共选中${selectedDataKeys.length}个文件`}</h4>
+          <h4 style={{ display: selectedDataKeys.length <= 1 ? 'block' : 'none' }}>{selectedData?.isFolder ? '文件夹内容' : '文件详情'}</h4>
           <span onClick={() => setFold(true)}><RightOutlined className='icon' />收起</span>
         </div>
         <div className='detail-wrapper'>
-          <div className='empty'>
+          <div className='empty' style={{ display: selectedDataKeys.length ? 'none' : 'block' }}>
             <Image src='/src/assets/img/empty.png' preview={false} width={120}></Image>
             <p>选中文件/文件夹，查看详情</p>
+          </div>
+          <div className='detail' style={{ display: selectedDataKeys.length ? 'block' : 'none' }}>
+            <div className='image-box'>
+              <Image src={selectedDataKeys.length == 1 ? selectedDataUrl : '/src/assets/icon/folder.png'} preview={false} width={120} />
+            </div>
+            <div className='information' style={{ display: selectedDataKeys.length == 1 ? 'block' : 'none' }}>
+              <h4>{selectedData?.filename}</h4>
+              <ul>
+                <li>创建时间：{selectedData?.createtime}</li>
+                <li>最后修改：{selectedData?.updatetime}</li>
+                <li>文件大小：{selectedData?.size}</li>
+                <li>所在目录：{selectedData?.directory}</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

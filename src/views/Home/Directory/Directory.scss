@@ -248,6 +248,34 @@
           font-size: 12px;
         }
       }
+
+      .detail {
+
+        .image-box {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 140px;
+        }
+
+        .information {
+          padding: 8px 16px;
+
+          h4 {
+            font-size: 14px;
+            color: #454d5a;
+            font-weight: 600;
+          }
+
+          li {
+            list-style: none;
+            margin-top: 10px;
+            font-size: 12px;
+            font-weight: 500;
+            color: #878c9c;
+          }
+        }
+      }
     }
   }
 
