@@ -104,7 +104,7 @@
         background-color: #f2faff;
 
         .text {
-          max-width: calc(100% - 110px);
+          max-width: calc(100% - 120px);
         }
 
         .button-group {
@@ -148,6 +148,7 @@
           align-items: center;
 
           .button {
+            font-size: 16px;
             padding: 0 4px;
             color: #06a7ff;
             cursor: pointer;
@@ -246,6 +247,38 @@
           font-weight: 400;
           font-size: 12px;
         }
+      }
+    }
+  }
+
+  .right-menu {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: #fff;
+    color: #666;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: 0 1px 6px rgb(0 0 0 / 20%);
+
+    .menu-item {
+      padding-left: 12px;
+      height: 30px;
+      line-height: 30px;
+      min-width: 130px;
+      font-size: 12px;
+      color: #03081a;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #f5f6fa
+      }
+
+      span {
+        display: inline-block;
+        margin-left: 8px;
       }
     }
   }

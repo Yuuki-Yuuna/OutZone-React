@@ -1,18 +1,54 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import './Directory.scss'
 import { checkFileType } from '@/util/file'
 import { Button, Table, Image, Dropdown, Input } from 'antd'
 import { UploadOutlined, FolderAddOutlined, FileAddOutlined, ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import type { FileInfomation } from '@/type/File'
+import type { FileInformation } from '@/type/File'
 
 const { Search } = Input
 
 const Directory: React.FC = () => {
   let [fold, setFold] = useState(false)//折叠开关
+  const rightMenu = useRef<HTMLDivElement>(null)//自定义右键菜单
+  let operationType: OperationType = null
+  let [selectedData, setSelectedData] = useState<FileInformation | null>(null)//当前选中项
+  let [selectedDataKeys, setSelectedDataKeys] = useState<React.Key[]>([])//表格选中项key值
 
-  const testData: FileInfomation[] = [
+  const changeOperation = (type: OperationType) => {
+    // //柯里化传参，changeOperation渲染时会被调用多次,不要有多余操作
+    return () => operationType = type//别用setState，这个数据不用渲染并且setState(虽然同步但有延迟,看了下原理)会导致修改不及时出bug
+  }
+  const fileShare = () => {
+    console.log('分享', selectedData)
+  }
+  const fileDownload = () => {
+    console.log('下载', selectedData)
+  }
+  const fileDelete = () => {
+    console.log('删除', selectedData)
+  }
+  const fileRename = () => {
+    console.log('重命名', selectedData)
+  }
+  const fileCopy = () => {
+    console.log('复制', selectedData)
+  }
+  const fileMove = () => {
+    console.log('移动', selectedData)
+  }
+  const fileGroup = () => {
+    console.log('共享', selectedData)
+  }
+  const fileOpen = () => {
+    console.log('打开', selectedData)
+  }
+  const fileSearch = () => {
+
+  }
+
+  const testData: FileInformation[] = [
     {
       key: '1',
       filename: '我的资源',
@@ -57,7 +93,7 @@ const Directory: React.FC = () => {
     {
       key: 'copy',
       label: (
-        <div>
+        <div onClick={changeOperation('copy')}>
           <CopyOutlined />
           <span>复制</span>
         </div>
@@ -66,7 +102,7 @@ const Directory: React.FC = () => {
     {
       key: 'move',
       label: (
-        <div>
+        <div onClick={changeOperation('move')}>
           <DragOutlined />
           <span>移动</span>
         </div>
@@ -75,7 +111,7 @@ const Directory: React.FC = () => {
     {
       key: 'share',
       label: (
-        <div>
+        <div onClick={changeOperation('group')}>
           <UsergroupAddOutlined />
           <span>共享</span>
         </div>
@@ -83,22 +119,58 @@ const Directory: React.FC = () => {
     }
   ]
 
-  const rowOption = (record: FileInfomation, index?: number) => {
+  const rowOption = (record: FileInformation, index?: number) => {
     return {
       onClick: () => {
-        console.log(record, index)
+        // console.log(record, index)
+        //利用事件冒泡，changeOperationType先触发
+        switch (operationType) {
+          case 'share': fileShare()
+            break
+          case 'download': fileDownload()
+            break
+          case 'delete': fileDelete()
+            break
+          case 'rename': fileRename()
+            break
+          case 'copy': fileCopy()
+            break
+          case 'move': fileMove()
+            break
+          case 'group': fileGroup()
+          break
+          default: setSelectedDataKeys([record.key])
+        }
+        operationType = null//操作结束后取消操作
       },
+      //鼠标右键事件
+      onContextMenu: (event: React.MouseEvent) => {
+        // console.log(event)
+        // console.log(record, index)
+        event.preventDefault()
+        const element = rightMenu.current!
+        element.style.display = 'block'
+        element.style.top = event.clientY + 'px'
+        element.style.left = event.clientX + 'px'
+        window.onclick = () => {
+          element.style.display = 'none'//关闭
+        }
+        setSelectedData(record)//这里延迟满足要求，而且也需要渲染页面，就将就一下吧
+        setSelectedDataKeys([record.key])
+      }
       // onDoubleClick: event => { },//双击行
     }
   }
 
   const rowSelection = {
-    onChange: (selectedRowKeys: React.Key[], selectedRows: FileInfomation[]) => {
+    selectedRowKeys: selectedDataKeys,
+    onChange: (selectedRowKeys: React.Key[], selectedRows: FileInformation[]) => {
+      setSelectedDataKeys(selectedRowKeys)
       console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
     }
   }
 
-  const columns: ColumnsType<FileInfomation> = [
+  const columns: ColumnsType<FileInformation> = [
     {
       title: '文件名',
       dataIndex: 'filename',
@@ -126,10 +198,10 @@ const Directory: React.FC = () => {
         <div className='date-selection'>
           <span className='info'>{text}</span>
           <div className='button-group'>
-            <ShareAltOutlined className='button' title='分享' />
-            <DownloadOutlined className='button' title='下载' />
-            <DeleteOutlined className='button' title='删除' />
-            <EditOutlined className='button' title='重命名' />
+            <ShareAltOutlined className='button' title='分享' onClick={changeOperation('share')} />
+            <DownloadOutlined className='button' title='下载' onClick={changeOperation('download')} />
+            <DeleteOutlined className='button' title='删除' onClick={changeOperation('delete')} />
+            <EditOutlined className='button' title='重命名' onClick={changeOperation('rename')} />
             <Dropdown menu={{ items: dropdownItems }} placement='bottom' overlayStyle={{ width: '80px' }}>
               <EllipsisOutlined className='button' />
             </Dropdown>
@@ -172,16 +244,49 @@ const Directory: React.FC = () => {
             pagination={false}
             onRow={rowOption}
           />
+          <div className='right-menu' ref={rightMenu}>
+            <div className='menu-item' onClick={fileOpen}>
+              <span>打开</span>
+            </div>
+            <div className='menu-item' onClick={fileDownload}>
+              <DownloadOutlined />
+              <span>下载</span>
+            </div>
+            <div className='menu-item' onClick={fileShare}>
+              <ShareAltOutlined />
+              <span>分享</span>
+            </div>
+            <div className='menu-item' onClick={fileGroup}>
+              <UsergroupAddOutlined />
+              <span>共享</span>
+            </div>
+            <div className='menu-item' onClick={fileCopy}>
+              <CopyOutlined />
+              <span>复制</span>
+            </div>
+            <div className='menu-item' onClick={fileMove}>
+              <DragOutlined />
+              <span>移动</span>
+            </div>
+            <div className='menu-item' onClick={fileRename}>
+              <EditOutlined />
+              <span>重命名</span>
+            </div>
+            <div className='menu-item' onClick={fileDelete}>
+              <DeleteOutlined />
+              <span>删除</span>
+            </div>
+          </div>
         </div>
       </div>
       <div className='preview' style={{ display: fold ? 'none' : 'block' }}>
         <div className='search-wrapper'>
-          <Search placeholder="搜索我的文件" onSearch={() => { }} />
+          <Search placeholder="搜索我的文件" onSearch={fileSearch} />
         </div>
         <div className='title'>
-            <h4>{'文件详情'}</h4>
-            <span onClick={() => setFold(true)}><RightOutlined className='icon' />收起</span>
-          </div>
+          <h4>{'文件详情'}</h4>
+          <span onClick={() => setFold(true)}><RightOutlined className='icon' />收起</span>
+        </div>
         <div className='detail-wrapper'>
           <div className='empty'>
             <Image src='/src/assets/img/empty.png' preview={false} width={120}></Image>
@@ -192,5 +297,7 @@ const Directory: React.FC = () => {
     </div>
   )
 }
+
+type OperationType = 'share' | 'download' | 'delete' | 'rename' | 'copy' | 'move' | 'group' | null
 
 export default Directory

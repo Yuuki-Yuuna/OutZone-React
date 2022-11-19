@@ -1,4 +1,4 @@
-export interface FileInfomation {
+export interface FileInformation {
   key: React.Key
   filename: string
   createtime: string
