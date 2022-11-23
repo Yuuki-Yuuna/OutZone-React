@@ -1,13 +1,12 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import './Directory.scss'
-import { checkFileType } from '@/util/file'
 import { Button, Table, Image, Dropdown, Input } from 'antd'
 import { UploadOutlined, FolderAddOutlined, FileAddOutlined, ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { FileInformation } from '@/type/File'
-
-const { Search } = Input
+import { useStoreSelector, useStoreDispatch } from '@/store'
+import { getFileList } from '@/store/features/fileSlice'
 
 const Directory: React.FC = () => {
   let [fold, setFold] = useState(false)//折叠开关
@@ -15,13 +14,16 @@ const Directory: React.FC = () => {
   let operationType: OperationType = null
   let [selectedDataKeys, setSelectedDataKeys] = useState<React.Key[]>([])//表格选中项key值
   let [selectedData, setSelectedData] = useState<FileInformation | null>(null)//当前选中项
-  const selectedDataUrl = useMemo(() => {
-    let fileType = 'folder'
-    if (selectedData) {
-      fileType = selectedData?.isFolder ? 'folder' : checkFileType(selectedData.extendname!)
-    }
-    return new URL(`../../../assets/icon/${fileType}.png`, import.meta.url).href
-  }, [selectedData])
+  const fileList = useStoreSelector(state => state.file.fileList)
+  const dispatch = useStoreDispatch()
+
+  useEffect(() => {
+    dispatch(getFileList({ groupId: -1, absolutePath: '/' }))
+  }, [])
+
+  useEffect(() => {
+    console.log(fileList)
+  }, [fileList])
 
   const changeOperation = (type: OperationType) => {
     // //柯里化传参，changeOperation渲染时会被调用多次,不要有多余操作
@@ -55,46 +57,52 @@ const Directory: React.FC = () => {
 
   }
 
-  const testData: FileInformation[] = [
-    {
-      key: '1',
-      filename: '我的资源',
-      createtime: '2022-11-14 15:50',
-      updatetime: '2022-11-14 16:00',
-      size: '-',
-      isFolder: true,
-      directory: '/'
-    },
-    {
-      key: '2',
-      filename: '百度云解压',
-      createtime: '2022-11-14 15:50',
-      updatetime: '2022-11-14 16:00',
-      size: '-',
-      isFolder: true,
-      directory: '/'
-    },
-    {
-      key: '3',
-      filename: '压缩文件',
-      extendname: 'rar',
-      createtime: '2022-11-14 15:50',
-      updatetime: '2022-11-14 16:00',
-      size: '784M',
-      isFolder: false,
-      directory: '/'
-    },
-    {
-      key: '4',
-      filename: '音乐文件',
-      extendname: 'flac',
-      createtime: '2022-11-14 15:50',
-      updatetime: '2022-11-14 16:00',
-      size: '36.2M',
-      isFolder: false,
-      directory: '/'
-    }
-  ]
+  // const testData: FileInformation[] = [
+  //   {
+  //     id: '1',
+  //     name: '我的资源',
+  //     type: null,
+  //     uploadDate: '2022-11-14 15:50',
+  //     size: null,
+  //     directoryType: true,
+  //     path: '/',
+  //     icon: '',
+  //     parentId: null
+  //   },
+  //   {
+  //     id: '2',
+  //     name: '百度云解压',
+  //     type: null,
+  //     uploadDate: '2022-11-14 15:50',
+  //     size: null,
+  //     directoryType: true,
+  //     path: '/',
+  //     icon: '',
+  //     parentId: null
+  //   },
+  //   {
+  //     id: '3',
+  //     name: '压缩文件',
+  //     type: 'rar',
+  //     uploadDate: '2022-11-14 15:50',
+  //     size: '784M',
+  //     directoryType: false,
+  //     path: '/',
+  //     icon: '',
+  //     parentId: null
+  //   },
+  //   {
+  //     id: '4',
+  //     name: '音乐文件',
+  //     type: 'flac',
+  //     uploadDate: '2022-11-14 15:50',
+  //     size: '36.2M',
+  //     directoryType: false,
+  //     path: '/',
+  //     icon: '',
+  //     parentId: null
+  //   }
+  // ]
 
   const dropdownItems: MenuProps['items'] = [
     {
@@ -146,7 +154,7 @@ const Directory: React.FC = () => {
             break
           case 'group': fileGroup()
             break
-          default: setSelectedData(record), setSelectedDataKeys([record.key])
+          default: setSelectedData(record), setSelectedDataKeys([record.id])
         }
         operationType = null//操作结束后取消操作
       },
@@ -163,7 +171,7 @@ const Directory: React.FC = () => {
           element.style.display = 'none'//关闭
         }
         setSelectedData(record)//这里延迟满足要求，而且也需要渲染页面，就将就一下吧
-        setSelectedDataKeys([record.key])
+        setSelectedDataKeys([record.id])
       }
       // onDoubleClick: event => { },//双击行
     }
@@ -176,34 +184,26 @@ const Directory: React.FC = () => {
       if (selectedRows.length == 1) {
         setSelectedData(selectedRows[0])
       }
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
+      // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
     }
   }
 
   const columns: ColumnsType<FileInformation> = [
     {
       title: '文件名',
-      dataIndex: 'filename',
+      dataIndex: 'name',
       render: (text, record) => {
-        let fileType = 'other'
-        if (record.isFolder) {
-          fileType = 'folder'
-        } else if (record.extendname) {
-          fileType = checkFileType(record.extendname)
-        }
-        const src = new URL(`../../../assets/icon/${fileType}.png`, import.meta.url).href
-
         return (
           <div className='file-selection'>
-            <Image src={src} preview={false} width={32} />
+            <Image src={record.icon} preview={false} width={32} />
             <span className='text'>{text}</span>
           </div>
         )
       }
     },
     {
-      title: '修改时间',
-      dataIndex: 'updatetime',
+      title: '创建时间',
+      dataIndex: 'uploadDate',
       render: (text) => (
         <div className='date-selection'>
           <span className='info'>{text}</span>
@@ -222,7 +222,7 @@ const Directory: React.FC = () => {
     {
       title: '大小',
       dataIndex: 'size',
-      render: (text) => <span className='info'>{text}</span>
+      render: (text) => <span className='info'>{text ? text: '-'}</span>
     }
   ]
 
@@ -249,8 +249,9 @@ const Directory: React.FC = () => {
         <div className='table'>
           <Table
             columns={columns}
+            rowKey={(record) => record.id}
             rowSelection={{ ...rowSelection }}
-            dataSource={testData}
+            dataSource={fileList}
             pagination={false}
             onRow={rowOption}
           />
@@ -291,11 +292,11 @@ const Directory: React.FC = () => {
       </div>
       <div className='preview' style={{ display: fold ? 'none' : 'block' }}>
         <div className='search-wrapper'>
-          <Search placeholder="搜索我的文件" onSearch={fileSearch} />
+          <Input.Search placeholder="搜索我的文件" onSearch={fileSearch} />
         </div>
         <div className='title'>
           <h4 style={{ display: selectedDataKeys.length > 1 ? 'block' : 'none' }}>{`共选中${selectedDataKeys.length}个文件`}</h4>
-          <h4 style={{ display: selectedDataKeys.length <= 1 ? 'block' : 'none' }}>{selectedData?.isFolder ? '文件夹内容' : '文件详情'}</h4>
+          <h4 style={{ display: selectedDataKeys.length <= 1 ? 'block' : 'none' }}>{selectedData?.directoryType ? '文件夹内容' : '文件详情'}</h4>
           <span onClick={() => setFold(true)}><RightOutlined className='icon' />收起</span>
         </div>
         <div className='detail-wrapper'>
@@ -305,15 +306,14 @@ const Directory: React.FC = () => {
           </div>
           <div className='detail' style={{ display: selectedDataKeys.length ? 'block' : 'none' }}>
             <div className='image-box'>
-              <Image src={selectedDataKeys.length == 1 ? selectedDataUrl : '/src/assets/icon/folder.png'} preview={false} width={120} />
+              <Image src={selectedDataKeys.length == 1 ? selectedData?.icon : '/src/assets/icon/folder.png'} preview={false} width={120} />
             </div>
             <div className='information' style={{ display: selectedDataKeys.length == 1 ? 'block' : 'none' }}>
-              <h4>{selectedData?.filename}</h4>
+              <h4>{selectedData?.name}</h4>
               <ul>
-                <li>创建时间：{selectedData?.createtime}</li>
-                <li>最后修改：{selectedData?.updatetime}</li>
-                <li>文件大小：{selectedData?.size}</li>
-                <li>所在目录：{selectedData?.directory}</li>
+                <li>创建时间：{selectedData?.uploadDate}</li>
+                <li>文件大小：{selectedData?.size ? selectedData.size : '-'}</li>
+                <li>所在目录：{selectedData?.path}</li>
               </ul>
             </div>
           </div>

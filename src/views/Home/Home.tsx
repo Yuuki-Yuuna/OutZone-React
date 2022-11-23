@@ -8,7 +8,7 @@ import type { MenuProps } from 'antd'
 
 const Home: React.FC = () => {
   const navigate = useNavigate()
-
+  
   const changeDisplay: MenuProps['onClick'] = (event) => {
     if (event.key == 'image') {
       navigate('/home/timeline')

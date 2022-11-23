@@ -1,12 +1,13 @@
 import axios from 'axios'
+import { getToken } from './secret'
 
 const instance = axios.create({
-  baseURL: 'http://api.re1ife.top',
+  baseURL: 'http://172.23.252.223:8085/api',
   timeout: 5000
 })
 
 instance.interceptors.request.use(config => {
-  const token = localStorage.getItem('token')
+  const token = getToken()
   if(token) {
     config.headers!.token = token
   }  
