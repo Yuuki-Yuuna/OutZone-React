@@ -1,12 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react'
 import './Directory.scss'
-import { Button, Table, Image, Dropdown, Input } from 'antd'
-import { UploadOutlined, FolderAddOutlined, FileAddOutlined, ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
+import FileManage from '@/compnents/FileManage/FileManage'
+import { Table, Image, Dropdown, Input } from 'antd'
+import { ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { FileInformation } from '@/type/File'
 import { useStoreSelector, useStoreDispatch } from '@/store'
 import { getFileList } from '@/store/features/fileSlice'
+import { computedFileSize } from '@/util/file'
+import { useSearchParams } from 'react-router-dom'
 
 const Directory: React.FC = () => {
   let [fold, setFold] = useState(false)//折叠开关
@@ -16,14 +19,13 @@ const Directory: React.FC = () => {
   let [selectedData, setSelectedData] = useState<FileInformation | null>(null)//当前选中项
   const fileList = useStoreSelector(state => state.file.fileList)
   const dispatch = useStoreDispatch()
+  const [search] = useSearchParams()
+  const path = search.get('path')
+  const groupId = -1
 
   useEffect(() => {
-    dispatch(getFileList({ groupId: -1, absolutePath: '/' }))
+    dispatch(getFileList({ groupId, absolutePath: path ? path : '/' }))
   }, [])
-
-  useEffect(() => {
-    console.log(fileList)
-  }, [fileList])
 
   const changeOperation = (type: OperationType) => {
     // //柯里化传参，changeOperation渲染时会被调用多次,不要有多余操作
@@ -222,24 +224,14 @@ const Directory: React.FC = () => {
     {
       title: '大小',
       dataIndex: 'size',
-      render: (text) => <span className='info'>{text ? text: '-'}</span>
+      render: (text) => <span className='info'>{computedFileSize(text)}</span>
     }
   ]
 
   return (
     <div className='directory'>
       <div className='content'>
-        <div className='tools'>
-          <Button type="primary" shape='round' icon={<UploadOutlined />} className='upload'><b>上传</b></Button>
-          <div className='buttons'>
-            <div className='button'>
-              <button><FolderAddOutlined className='icon' />新建文件夹</button>
-            </div>
-            <div className='button'>
-              <button><FileAddOutlined className='icon' />新建文本文档</button>
-            </div>
-          </div>
-        </div>
+        <FileManage />
         <div className='title'>
           <h4>{'全部文件'}</h4>
           <span style={{ display: fold ? 'flex' : 'none' }} onClick={() => setFold(false)}>
@@ -312,7 +304,7 @@ const Directory: React.FC = () => {
               <h4>{selectedData?.name}</h4>
               <ul>
                 <li>创建时间：{selectedData?.uploadDate}</li>
-                <li>文件大小：{selectedData?.size ? selectedData.size : '-'}</li>
+                <li>文件大小：{computedFileSize(selectedData?.size)}</li>
                 <li>所在目录：{selectedData?.path}</li>
               </ul>
             </div>

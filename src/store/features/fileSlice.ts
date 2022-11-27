@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { FileInformation } from '@/type/File'
 import { getNowFileList } from '@/api/file'
-import type { GetNowFileListParams, GetNowFileListData } from '@/api/file'
+import type { GetNowFileListParams } from '@/api/file'
 
 export interface FileState {
   fileList: FileInformation[]
@@ -45,7 +45,7 @@ const fileSlice = createSlice({
 
 export const getFileList = createAsyncThunk('file/getFileList', async (params: GetNowFileListParams) => {
   const { data } = await getNowFileList(params)
-  return data as GetNowFileListData
+  return data
 })
 
 export const { setFileList } = fileSlice.actions

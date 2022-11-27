@@ -1,8 +1,10 @@
 import axios from 'axios'
 import { getToken } from './secret'
 
+export const baseURL = 'http://172.23.252.223:8085/api'
+
 const instance = axios.create({
-  baseURL: 'http://172.23.252.223:8085/api',
+  baseURL: baseURL,
   timeout: 5000
 })
 
