@@ -1,5 +1,30 @@
 import SparkMD5 from 'spark-md5'
 
+const document = ['txt', 'doc', 'docx', 'xls', 'pdf']
+const image = ['png', 'jpg', 'jpeg', 'webp']
+const audio = ['mp3', 'flac', 'wav']
+const video = ['mp4']
+const compression = ['rar', 'zip', '7z']
+const mobile = ['apk']
+
+export const checkFileType = (filename: string) => {
+  const slice = filename.split('.')
+  const extname = slice[slice.length - 1]//扩展名
+  const createFilter = (name: string) => (item: string) => item == name 
+  console.log(extname)
+  if (document.some(createFilter(extname)) || audio.some(createFilter(extname)) || mobile.some(createFilter(extname))) {
+    return extname
+  } else if (image.some(createFilter(extname))) {
+    return 'image'
+  } else if (video.some(createFilter(extname))) {
+    return 'video'
+  } else if(compression.some(createFilter(extname))) {
+    return 'compression'
+  } else {
+    return 'other'
+  }
+}
+
 export const computedFileSize = (byte?: number | null) => {
   let size = '-'
   if (typeof byte == 'number') {

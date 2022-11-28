@@ -1,13 +1,21 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import './Navigation.scss'
 import { useNavigate } from 'react-router-dom'
-import { Image, Avatar, Space, Dropdown, Drawer, Progress, Menu } from 'antd'
+import { Image, Avatar, Space, Dropdown, Drawer, Progress, Menu, Badge } from 'antd'
 import { SwapOutlined, UserOutlined, BellOutlined, FolderOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
+import { checkFileType, computedFileSize } from '@/util/file'
 
-const Navigation: React.FC = () => {
+const Navigation: React.FC<PropsType> = (props) => {
   const navigate = useNavigate()
+  const dropdownRef = useRef<HTMLSpanElement>(null)
   let [drawerOpen, setDrawerOpen] = useState(false)
+  const { uploader, uploadList, isUploading } = props
+  let isDropdownOpen = false
+
+  const test = () => {
+    console.log(uploadList)
+  }
 
   const openDrawer = () => {
     setDrawerOpen(true)
@@ -16,15 +24,53 @@ const Navigation: React.FC = () => {
     setDrawerOpen(false)
   }
 
+  useEffect(() => {
+    if(isUploading) {
+      if(!isDropdownOpen) {
+        dropdownRef.current?.click()
+        isDropdownOpen = true
+      }
+    } else {
+      isDropdownOpen = false
+    }
+  }, [isUploading])
+
   const uploadDropdownRender = () => {
     return (
       <div className='upload'>
         <div className='title'>
           <p>传输列表</p>
-          <h2>上传完成（0/0）</h2>
+          <h2>上传完成（{uploadList.filter((file: any) => file.progress() == 1).length}/{uploadList.length}）</h2>
         </div>
         <div className='content'>
-          <p className='empty'>- 仅展示本次上传任务 -</p>
+          {uploadList.map((file: any) => {
+            // console.log(file)
+            const src = new URL(`../../assets/icon/${checkFileType(file.name)}.png`, import.meta.url).href
+
+            return (
+              <div className='file' key={file.uniqueIdentifier}>
+                <div className='file-info'>
+                  <Image src={src} preview={false} width={40} />
+                  <div className='data'>
+                    <h4>{file.name}</h4>
+                    <Progress
+                      showInfo={false}
+                      percent={file.progress() * 100}
+                      strokeWidth={3}
+                      strokeColor='#009dff'
+                      status={file.currentSpeed > 0 ? 'active' : 'normal'}
+                      style={{ display: file.progress() == 1 ? 'none' : 'block' }}
+                    />
+                    <div className='status'>
+                      <div className='size'>{computedFileSize(file.size)}</div>
+                      <div className='speed'>{file.progress() == 1 ? '' : computedFileSize(file.currentSpeed) + '/s'}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+          <p className='tips'>- 仅展示本次上传任务 -</p>
         </div>
       </div>
     )
@@ -72,22 +118,24 @@ const Navigation: React.FC = () => {
       </div>
       <div className='flex-grow'></div>
       <div className='profile'>
-        <Avatar icon={<UserOutlined />} src={'/src/assets/avatar.jpg'} size={42} />
+        <Avatar icon={<UserOutlined />} src={'/src/assets/avatar.jpg'} size={42} onClick={test} />
         <Dropdown menu={{ items: dropdownItems }} placement='bottom' arrow>
           <h2>{'admin'}</h2>
         </Dropdown>
         <div className='tools'>
           <Space>
-            <Dropdown
-              dropdownRender={uploadDropdownRender}
-              placement='bottomRight'
-              trigger={['click']}
-              overlayClassName='upload-dropdown'
-              align={{ offset: [80, 30] }}
-            >
-              {/* align属性antd文档未标出，可以修改下拉框位置 */}
-              <SwapOutlined className='icon' rotate={-90} title='传输列表' />
-            </Dropdown>
+            <Badge count={uploadList.filter((file: any) => file.progress() < 1).length} size='small'>
+              <Dropdown
+                dropdownRender={uploadDropdownRender}
+                placement='bottomRight'
+                trigger={['click']}
+                overlayClassName='upload-dropdown'
+                align={{ offset: [80, 30] }}
+              >
+                {/* align属性antd文档未标出，可以修改下拉框位置 */}
+                <SwapOutlined ref={dropdownRef} className='icon' rotate={-90} title='传输列表' />
+              </Dropdown>
+            </Badge>
             <BellOutlined className='icon' title='通知管理' />
           </Space>
         </div>
@@ -115,6 +163,12 @@ const Navigation: React.FC = () => {
       </Drawer>
     </div>
   )
+}
+
+interface PropsType {
+  uploader: any
+  uploadList: any
+  isUploading: boolean
 }
 
 export default Navigation

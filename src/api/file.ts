@@ -5,8 +5,12 @@ export const getNowFileList = (params: GetNowFileListParams) => {
   return request.post<GetNowFileListData>('/file/getNowFileList', params)
 }
 
-export const uploadFileMerge = (params: UploadFileMergeParams) => {
-  return request.post('/file/merge', params)
+export const uploadPreCheck = (params: UploadFileParams ) => {
+  return request.get<UploadPreCheckData>('/file/preCheckFileExist', { params })
+}
+
+export const uploadFileMerge = (params: UploadFileParams) => {
+  return request.post<UploadFileMergeData>('/file/merge', params)
 }
 
 export interface GetNowFileListParams {
@@ -14,7 +18,7 @@ export interface GetNowFileListParams {
   absolutePath: string
 }
 
-export interface UploadFileMergeParams  {
+export interface UploadFileParams  {
   totalSize: number,
   identifier: string,
   filename: string,
@@ -23,7 +27,16 @@ export interface UploadFileMergeParams  {
   groupId: number
 }
 
+export interface UploadPreCheckData extends ResponseData {
+  data: {
+    isSkip: boolean,
+    needMerge: boolean
+  }
+}
 
+export interface UploadFileMergeData extends ResponseData {
+  data: any
+}
 
 export interface GetNowFileListData extends ResponseData {
   data: FileInformation[]

@@ -9,7 +9,7 @@ import type { FileInformation } from '@/type/File'
 import { useStoreSelector, useStoreDispatch } from '@/store'
 import { getFileList } from '@/store/features/fileSlice'
 import { computedFileSize } from '@/util/file'
-import { useSearchParams } from 'react-router-dom'
+import { useOutletContext, useSearchParams } from 'react-router-dom'
 
 const Directory: React.FC = () => {
   let [fold, setFold] = useState(false)//折叠开关
@@ -20,11 +20,11 @@ const Directory: React.FC = () => {
   const fileList = useStoreSelector(state => state.file.fileList)
   const dispatch = useStoreDispatch()
   const [search] = useSearchParams()
-  const path = search.get('path')
-  const groupId = -1
+  const path = (search.get('path') ? search.get('path') : '/') as string
+  const { groupId, uploader } = useOutletContext<ContextType>()
 
   useEffect(() => {
-    dispatch(getFileList({ groupId, absolutePath: path ? path : '/' }))
+    dispatch(getFileList({ groupId, absolutePath: path }))  
   }, [])
 
   const changeOperation = (type: OperationType) => {
@@ -198,7 +198,7 @@ const Directory: React.FC = () => {
         return (
           <div className='file-selection'>
             <Image src={record.icon} preview={false} width={32} />
-            <span className='text'>{text}</span>
+            <span className='text'>{record.directoryType ? text.slice(1, text.length-1) : text}</span>
           </div>
         )
       }
@@ -231,7 +231,7 @@ const Directory: React.FC = () => {
   return (
     <div className='directory'>
       <div className='content'>
-        <FileManage />
+        <FileManage uploader={uploader}  />
         <div className='title'>
           <h4>{'全部文件'}</h4>
           <span style={{ display: fold ? 'flex' : 'none' }} onClick={() => setFold(false)}>
@@ -316,5 +316,10 @@ const Directory: React.FC = () => {
 }
 
 type OperationType = 'share' | 'download' | 'delete' | 'rename' | 'copy' | 'move' | 'group' | null
+
+interface ContextType {
+  uploader: any,
+  groupId: number
+}
 
 export default Directory

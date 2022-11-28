@@ -4,7 +4,7 @@ import type { FileInformation } from '@/type/File'
 import { getNowFileList } from '@/api/file'
 import type { GetNowFileListParams } from '@/api/file'
 
-export interface FileState {
+interface FileState {
   fileList: FileInformation[]
   status: 'idle' | 'loading'//空闲或正在加载
 }

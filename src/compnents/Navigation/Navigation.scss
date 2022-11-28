@@ -56,8 +56,8 @@
 }
 
 .upload-dropdown {
-  width: 360px;
-  height: 240px;
+  width: 400px;
+  height: 320px;
   box-shadow: 0 2px 8px 0 rgb(0 0 0 / 16%);
   border-radius: 8px;
   background: #fff;
@@ -84,10 +84,53 @@
 
   .content {
 
-    .empty {
+    .tips {
       text-align: center;
       color: #afb3bf;
       font-size: 10px;
+      margin: 0;
+    }
+
+    .file {
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #f2f6fd;
+      height: 72px;
+      padding: 5px;
+
+      .file-info {
+        display: flex;
+
+        h4 {
+          font-size: 14px;
+        }
+
+        .data {
+          width: 200px;
+          margin-left: 10px;
+          padding: 5px 0;
+
+          .status {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+
+            .size {
+              color: #878c9c;
+            }
+
+            .speed {
+              color: #06a7ff;
+            }
+          }
+        }
+      }
+
+      .ant-image {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
     }
   }
 }

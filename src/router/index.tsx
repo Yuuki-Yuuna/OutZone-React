@@ -5,7 +5,7 @@ import RouteBefore from './guard/RouteBefore'
 const Login = lazy(() => import('@/views/Login/Login'))
 const Home = lazy(() => import('@/views/Home/Home'))
 const Directory = lazy(() => import('@/views/Home/Directory/Directory'))
-const Timeline = lazy(() => import('@/views/Home/Timeline/Timeline'))
+const PictureWall = lazy(() => import('@/views/Home/PictureWall/PictureWall'))
 const Mobile = lazy(() => import('@/views/Mobile/Mobile'))
 
 export default createBrowserRouter([
@@ -35,7 +35,7 @@ export default createBrowserRouter([
       },
       {
         path: 'timeline',
-        element: <Timeline />
+        element: <PictureWall />
       }
     ]
   },
