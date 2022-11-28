@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import './Navigation.scss'
 import { useNavigate } from 'react-router-dom'
 import { Image, Avatar, Space, Dropdown, Drawer, Progress, Menu, Badge } from 'antd'
-import { SwapOutlined, UserOutlined, BellOutlined, FolderOutlined } from '@ant-design/icons'
+import { SwapOutlined, UserOutlined, BellOutlined, FolderOutlined, ArrowUpOutlined, PauseOutlined, CloseOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { checkFileType, computedFileSize } from '@/util/file'
 
@@ -10,8 +10,7 @@ const Navigation: React.FC<PropsType> = (props) => {
   const navigate = useNavigate()
   const dropdownRef = useRef<HTMLSpanElement>(null)
   let [drawerOpen, setDrawerOpen] = useState(false)
-  const { uploader, uploadList, isUploading } = props
-  let isDropdownOpen = false
+  const { uploader, uploadList, setUploadList, isUploading } = props
 
   const test = () => {
     console.log(uploadList)
@@ -24,14 +23,16 @@ const Navigation: React.FC<PropsType> = (props) => {
     setDrawerOpen(false)
   }
 
+  const uploadFileCancel = (file: any) => {
+    return () => {
+      file.cancel()
+      setUploadList([...uploader.files])//要渲染
+    }
+  }
+
   useEffect(() => {
-    if(isUploading) {
-      if(!isDropdownOpen) {
-        dropdownRef.current?.click()
-        isDropdownOpen = true
-      }
-    } else {
-      isDropdownOpen = false
+    if (isUploading) {
+      dropdownRef.current?.click()
     }
   }, [isUploading])
 
@@ -66,6 +67,14 @@ const Navigation: React.FC<PropsType> = (props) => {
                       <div className='speed'>{file.progress() == 1 ? '' : computedFileSize(file.currentSpeed) + '/s'}</div>
                     </div>
                   </div>
+                </div>
+                <div className='buttons'>
+                  {file.isComplete() ? <div className='button'><FolderOutlined className='icon' /></div> : (
+                    <Space>
+                      {file.isUploading() ? <div className='button' onClick={() => file.pause()}><PauseOutlined className='icon' /></div> : <div className='button' onClick={() => file.resume()}><ArrowUpOutlined className='icon' /></div>}
+                      <div className='button'><CloseOutlined className='icon' onClick={uploadFileCancel(file)} /></div>
+                    </Space>
+                  )}
                 </div>
               </div>
             )
@@ -168,6 +177,7 @@ const Navigation: React.FC<PropsType> = (props) => {
 interface PropsType {
   uploader: any
   uploadList: any
+  setUploadList: Function
   isUploading: boolean
 }
 

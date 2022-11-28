@@ -68,6 +68,7 @@
     align-items: center;
     padding: 8px 16px;
     border-bottom: 1px solid #f4f4f4;
+    height: 40px;
 
     p {
       margin: 0;
@@ -83,6 +84,8 @@
   }
 
   .content {
+    max-height: 280px;
+    overflow-y: auto;
 
     .tips {
       text-align: center;
@@ -106,7 +109,7 @@
         }
 
         .data {
-          width: 200px;
+          width: 240px;
           margin-left: 10px;
           padding: 5px 0;
 
@@ -122,6 +125,28 @@
             .speed {
               color: #06a7ff;
             }
+          }
+        }
+      }
+
+      .buttons {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-left: 15px;
+
+        .button {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background-color: #e6f7ff;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          cursor: pointer;
+
+          .icon {
+            color: #06a7ff;
           }
         }
       }

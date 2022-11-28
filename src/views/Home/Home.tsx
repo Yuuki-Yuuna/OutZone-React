@@ -63,6 +63,7 @@ const Home: React.FC = () => {
   //单文件上传成功
   uploader.on('fileSuccess', (rootFile: any, file: any) => {
     // console.log('成功', rootFile, file)
+    setIsUploading(uploader.isUploading())
     uploadFileMerge({
       totalSize: file.size,
       identifier: file.uniqueIdentifier,
@@ -83,7 +84,6 @@ const Home: React.FC = () => {
 
   uploader.on('fileProgress', () => {
     // console.log(uploadList)
-    setIsUploading(uploader.isUploading())
     setUploadList([...uploader.files])//解构生成新数组使其地址改变
   })
 
@@ -144,7 +144,7 @@ const Home: React.FC = () => {
 
   return (
     <div className='home'>
-      <Navigation uploader={uploader} uploadList={uploadList} isUploading={isUploading} />
+      <Navigation uploader={uploader} uploadList={uploadList} isUploading={isUploading} setUploadList={setUploadList} />
       <div className='layout'>
         <div className='slider'>
           <Menu

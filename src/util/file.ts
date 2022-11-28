@@ -11,7 +11,7 @@ export const checkFileType = (filename: string) => {
   const slice = filename.split('.')
   const extname = slice[slice.length - 1]//扩展名
   const createFilter = (name: string) => (item: string) => item == name 
-  console.log(extname)
+  // console.log(extname)
   if (document.some(createFilter(extname)) || audio.some(createFilter(extname)) || mobile.some(createFilter(extname))) {
     return extname
   } else if (image.some(createFilter(extname))) {

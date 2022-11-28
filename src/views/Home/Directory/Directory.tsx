@@ -246,6 +246,7 @@ const Directory: React.FC = () => {
             dataSource={fileList}
             pagination={false}
             onRow={rowOption}
+            scroll={{y: 500}}
           />
           <div className='right-menu' ref={rightMenu}>
             <div className='menu-item' onClick={fileOpen}>
