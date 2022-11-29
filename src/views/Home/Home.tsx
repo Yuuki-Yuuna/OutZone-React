@@ -1,8 +1,8 @@
-import React, { Suspense, useRef, useState } from 'react'
+import React, { Suspense, useState } from 'react'
 import './Home.scss'
 import Navigation from '@/compnents/Navigation/Navigation'
 import { Outlet, useNavigate, useSearchParams } from 'react-router-dom'
-import { Menu, Progress } from 'antd'
+import { Menu, Progress, message } from 'antd'
 import { FolderOutlined, FileOutlined, FolderOpenOutlined, FileImageOutlined, CustomerServiceOutlined, PlayCircleOutlined, EllipsisOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import Uploader from 'simple-uploader.js'//这个没有ts包，采用AnyScript编写
@@ -28,17 +28,20 @@ const Home: React.FC = () => {
       return params
     }
   })
-  let [uploadList, setUploadList] = useState<any>(uploader.files)
-  let [isUploading, setIsUploading] = useState(false)
+  let [uploadList, setUploadList] = useState<any>([])
 
   // 添加单个文件
   uploader.on('fileAdded', (uploadFile: any) => {
     // console.log(uploadFile)
     // console.log('开始计算md5')
+    uploadFile.isReady = false
+    uploadFile.timestamp = uploadFile.name + Date.now()
+    setUploadList((preUploadList: any) => [...preUploadList, uploadFile])//此时文件未添加
+    //异步后执行，此时文件已添加
     computedMd5(uploadFile.file).then(res => {
       uploadFile.uniqueIdentifier = res
       uploadFile.relativePath = path
-      console.log(uploader)
+      // console.log(uploader)
       uploadPreCheck({
         totalSize: uploadFile.size,
         identifier: uploadFile.uniqueIdentifier,
@@ -48,11 +51,32 @@ const Home: React.FC = () => {
         groupId: groupId
       }).then(res => {
         const result = res.data
-        if(!result.data.isSkip) {
-         
-        }
-        uploader.upload()
-        setIsUploading(uploader.isUploading())
+        // if(result.data.isSkip) {
+        //   message.success('上传成功')
+        //   uploadFile.cancel()
+        //   setUploadList((preUploadList: any) => preUploadList.filter((item: any) => item.uniqueIdentifier != uploadFile.uniqueIdentifier))
+        // } else {
+        //   console.log('开始上传')
+        //   // uploader.upload()
+        // }
+        // 选择文件会导致Home重新加载uploadList值改变，但preUploadList的值不会改变(太魔幻了)
+        setUploadList((preUploadList: any) => {
+          // console.log(preUploadList)
+          const filterList = preUploadList.filter((item: any) => {
+            return item.uniqueIdentifier == uploadFile.uniqueIdentifier && item.relativePath == uploadFile.relativePath
+          })
+          if (filterList.length > 1) {
+            message.warn('同一路径不能上传相同文件')
+            // console.log('重复文件')
+            return preUploadList.filter((item: any) => item.timestamp != uploadFile.timestamp)
+          } else {
+            // console.log('上传队列', uploadList)//Home重新渲染这里的值已经丢失了
+            // console.log('开始上传', uploadFile)
+            uploadFile.isReady = true
+            uploader.upload()
+            return preUploadList
+          }
+        })
       }).catch(err => {
         console.log(err)
       })
@@ -63,7 +87,6 @@ const Home: React.FC = () => {
   //单文件上传成功
   uploader.on('fileSuccess', (rootFile: any, file: any) => {
     // console.log('成功', rootFile, file)
-    setIsUploading(uploader.isUploading())
     uploadFileMerge({
       totalSize: file.size,
       identifier: file.uniqueIdentifier,
@@ -83,8 +106,8 @@ const Home: React.FC = () => {
   })
 
   uploader.on('fileProgress', () => {
-    // console.log(uploadList)
-    setUploadList([...uploader.files])//解构生成新数组使其地址改变
+    // console.log(uploader.files)//这个有问题一个文件上传中再添加文件不会显示所有文件
+    setUploadList((preUploadList: any) => [...preUploadList])//这里可以反复刷新dom
   })
 
   const changeDisplay: MenuProps['onClick'] = (event) => {
@@ -144,7 +167,7 @@ const Home: React.FC = () => {
 
   return (
     <div className='home'>
-      <Navigation uploader={uploader} uploadList={uploadList} isUploading={isUploading} setUploadList={setUploadList} />
+      <Navigation uploadList={uploadList} setUploadList={setUploadList} />
       <div className='layout'>
         <div className='slider'>
           <Menu

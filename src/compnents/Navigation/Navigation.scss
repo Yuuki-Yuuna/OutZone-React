@@ -106,6 +106,9 @@
 
         h4 {
           font-size: 14px;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
         }
 
         .data {
@@ -118,7 +121,7 @@
             justify-content: space-between;
             font-size: 12px;
 
-            .size {
+            .size, .waiting {
               color: #878c9c;
             }
 
@@ -133,7 +136,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        margin-left: 15px;
+        margin-left: 20px;
 
         .button {
           display: flex;

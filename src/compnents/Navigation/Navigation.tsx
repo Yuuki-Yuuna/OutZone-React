@@ -10,11 +10,8 @@ const Navigation: React.FC<PropsType> = (props) => {
   const navigate = useNavigate()
   const dropdownRef = useRef<HTMLSpanElement>(null)
   let [drawerOpen, setDrawerOpen] = useState(false)
-  const { uploader, uploadList, setUploadList, isUploading } = props
-
-  const test = () => {
-    console.log(uploadList)
-  }
+  let [dropdownOpen, setDropdownOpen] = useState(false)
+  const { uploadList, setUploadList } = props
 
   const openDrawer = () => {
     setDrawerOpen(true)
@@ -22,19 +19,34 @@ const Navigation: React.FC<PropsType> = (props) => {
   const closeDrawer = () => {
     setDrawerOpen(false)
   }
-
+  const handleOpenChange = (open: boolean) => {
+    // console.log('change', open)
+    setDropdownOpen(open)
+  }
+  const uploadFilePause = (file: any) => {
+    return () => {
+      file.pause()
+      setUploadList((preUploadList: any) => [...preUploadList])
+    }
+  }
+  const uploadFileResume = (file: any) => {
+    return () => {
+      file.resume()
+      setUploadList((preUploadList: any) => [...preUploadList])
+    }
+  }
   const uploadFileCancel = (file: any) => {
     return () => {
       file.cancel()
-      setUploadList([...uploader.files])//要渲染
+      setUploadList((preUploadList: any) => preUploadList.filter((item: any) => file.uniqueIdentifier != item.uniqueIdentifier))//要渲染
     }
   }
 
   useEffect(() => {
-    if (isUploading) {
-      dropdownRef.current?.click()
+    if (uploadList.length) {
+      setDropdownOpen(true)
     }
-  }, [isUploading])
+  }, [uploadList])
 
   const uploadDropdownRender = () => {
     return (
@@ -49,7 +61,7 @@ const Navigation: React.FC<PropsType> = (props) => {
             const src = new URL(`../../assets/icon/${checkFileType(file.name)}.png`, import.meta.url).href
 
             return (
-              <div className='file' key={file.uniqueIdentifier}>
+              <div className='file' key={file.timestamp}>
                 <div className='file-info'>
                   <Image src={src} preview={false} width={40} />
                   <div className='data'>
@@ -64,14 +76,14 @@ const Navigation: React.FC<PropsType> = (props) => {
                     />
                     <div className='status'>
                       <div className='size'>{computedFileSize(file.size)}</div>
-                      <div className='speed'>{file.progress() == 1 ? '' : computedFileSize(file.currentSpeed) + '/s'}</div>
+                      {file.isReady ? <div className='speed'>{file.progress() == 1 ? '' : computedFileSize(file.currentSpeed) + '/s'}</div> : <div className='waiting'>等待中</div> }
                     </div>
                   </div>
                 </div>
                 <div className='buttons'>
                   {file.isComplete() ? <div className='button'><FolderOutlined className='icon' /></div> : (
                     <Space>
-                      {file.isUploading() ? <div className='button' onClick={() => file.pause()}><PauseOutlined className='icon' /></div> : <div className='button' onClick={() => file.resume()}><ArrowUpOutlined className='icon' /></div>}
+                      {file.isUploading() ? <div className='button' onClick={uploadFilePause(file)}><PauseOutlined className='icon' /></div> : <div className='button' onClick={uploadFileResume(file)} style={{display: file.isReady ? 'flex' : 'none'}}><ArrowUpOutlined className='icon' /></div>}
                       <div className='button'><CloseOutlined className='icon' onClick={uploadFileCancel(file)} /></div>
                     </Space>
                   )}
@@ -127,7 +139,7 @@ const Navigation: React.FC<PropsType> = (props) => {
       </div>
       <div className='flex-grow'></div>
       <div className='profile'>
-        <Avatar icon={<UserOutlined />} src={'/src/assets/avatar.jpg'} size={42} onClick={test} />
+        <Avatar icon={<UserOutlined />} src={'/src/assets/avatar.jpg'} size={42} />
         <Dropdown menu={{ items: dropdownItems }} placement='bottom' arrow>
           <h2>{'admin'}</h2>
         </Dropdown>
@@ -140,6 +152,8 @@ const Navigation: React.FC<PropsType> = (props) => {
                 trigger={['click']}
                 overlayClassName='upload-dropdown'
                 align={{ offset: [80, 30] }}
+                open={dropdownOpen}
+                onOpenChange={handleOpenChange}
               >
                 {/* align属性antd文档未标出，可以修改下拉框位置 */}
                 <SwapOutlined ref={dropdownRef} className='icon' rotate={-90} title='传输列表' />
@@ -175,10 +189,8 @@ const Navigation: React.FC<PropsType> = (props) => {
 }
 
 interface PropsType {
-  uploader: any
   uploadList: any
   setUploadList: Function
-  isUploading: boolean
 }
 
 export default Navigation

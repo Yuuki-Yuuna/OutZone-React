@@ -4,6 +4,7 @@
 
   .content {
     min-width: 500px;
+    height: 100%;
 
     .title {
       display: flex;
@@ -11,6 +12,7 @@
       align-items: center;
       margin: 5px 0;
       padding: 0 12px;
+      height: 20px;
 
       h4 {
         font-size: 12px;
@@ -36,6 +38,7 @@
     //含有antd样式修改
     .table {
       padding-left: 2px;
+      max-height: calc(100% - 62px);
 
       th {
         font-size: 14px;
@@ -157,6 +160,7 @@
       align-items: center;
       margin: 5px 0;
       padding: 0 12px;
+      height: 42px;
 
       h4 {
         font-size: 12px;
