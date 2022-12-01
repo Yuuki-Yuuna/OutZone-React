@@ -111,7 +111,8 @@ const Home: React.FC = () => {
         console.log('文件上传成功')
         dispatch(getFileList({ groupId, absolutePath: path }))//刷新列表
       } else {
-        console.log(res.data.msg)
+        message.error(res.data.msg)
+        // console.log(res.data.msg)
       }
     }).catch(err => {
       console.log(err)

@@ -3,6 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit'
 import type { FileInformation } from '@/type/File'
 import { getNowFileList } from '@/api/file'
 import type { GetNowFileListParams } from '@/api/file'
+import { message } from 'antd'
 
 interface FileState {
   fileList: FileInformation[]
@@ -32,6 +33,7 @@ const fileSlice = createSlice({
         if(action.payload.code == 200) {
           state.fileList = action.payload.data
         } else {
+          message.error(action.payload.msg)
           console.log(action.payload.msg)
         }
         state.status = 'idle'

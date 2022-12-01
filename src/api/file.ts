@@ -18,7 +18,7 @@ export const downloadFile = (params: DownloadFileParams) => {
 }
 
 export const deleteFiles = (params: DeleteFilesParams) => {
-  return request.post('/file/deleteFiles', params)
+  return request.post<ResponseData>('/file/deleteFiles', params)
 }
 
 export interface GetNowFileListParams {

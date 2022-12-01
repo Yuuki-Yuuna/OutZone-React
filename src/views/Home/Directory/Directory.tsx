@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react'
 import './Directory.scss'
 import FileManage from '@/compnents/FileManage/FileManage'
-import { Table, Image, Dropdown, Input } from 'antd'
+import { Table, Image, Dropdown, Input, message } from 'antd'
 import { ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined, LoadingOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -87,8 +87,14 @@ const Directory: React.FC = () => {
   const fileDelete = (file: FileInformation) => {
     console.log('删除', file)
     const destination = path == '/' ? path : path + '/'
-    deleteFiles({ destination, groupId, files: [{...file, uploadDate: null}] }).then(res => {
-      console.log(res.data)
+    deleteFiles({ destination, groupId, files: [{ ...file, uploadDate: null }] }).then(res => {
+      // console.log(res.data)
+      if (res.data.code == 200) {
+        message.success('删除成功')
+        dispatch(getFileList({ groupId, absolutePath: path }))
+      } else {
+        message.error(res.data.msg)
+      }
     }).catch(err => {
       console.log(err)
     })
