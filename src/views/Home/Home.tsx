@@ -8,8 +8,8 @@ import type { MenuProps } from 'antd'
 import Uploader from 'simple-uploader.js'//这个没有ts包，采用AnyScript编写
 import { baseURL } from '@/util/request'
 import { getToken } from '@/util/secret'
-import { computedMd5 } from '@/util/file'
-import { uploadFileMerge, uploadPreCheck } from '@/api/file'
+import { checkFileCategory, computedMd5, getThumbnail, getVideoThumbnail } from '@/util/file'
+import { uploadFileMerge, UploadFileMergeParams, uploadPreCheck } from '@/api/file'
 import { useStoreDispatch } from '@/store'
 import { getFileList } from '@/store/features/fileSlice'
 
@@ -59,7 +59,7 @@ const Home: React.FC = () => {
           uploadFile.cancel()
           uploadFile.isReady = true
           setUploadList((preUploadList: any) => preUploadList.map((item: any) => {
-            if(item.uniqueIdentifier == uploadFile.uniqueIdentifier) {
+            if (item.uniqueIdentifier == uploadFile.uniqueIdentifier) {
               item._prevProgress = 1//展示的上传进度
               item.completed = true//展示的完成状态
               //上传大小仍然是0，不过不显示就无所谓了
@@ -97,16 +97,24 @@ const Home: React.FC = () => {
     })
   })
   //单文件上传成功
-  uploader.on('fileSuccess', (rootFile: any, file: any) => {
+  uploader.on('fileSuccess', async (rootFile: any, file: any) => {
     // console.log('成功', rootFile, file)
-    uploadFileMerge({
+    const params: UploadFileMergeParams = {
       totalSize: file.size,
       identifier: file.uniqueIdentifier,
       filename: file.name,
       totalChunks: file.chunks.length,
       uploadCloudPath: file.relativePath,
-      groupId: groupId
-    }).then(res => {
+      groupId: groupId,
+    }
+
+    try {
+      if (checkFileCategory(file.getType()) == 'image') {
+        params.icon = await getThumbnail(file.file)
+      } else if (checkFileCategory(file.getType()) == 'video') {
+        params.icon = await getVideoThumbnail(file.file)
+      }
+      const res = await uploadFileMerge(params)
       if (res.data.code == 200) {
         console.log('文件上传成功')
         dispatch(getFileList({ groupId, absolutePath: path }))//刷新列表
@@ -114,9 +122,9 @@ const Home: React.FC = () => {
         message.error(res.data.msg)
         // console.log(res.data.msg)
       }
-    }).catch(err => {
+    } catch (err) {
       console.log(err)
-    })
+    }
   })
 
   uploader.on('fileProgress', () => {

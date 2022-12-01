@@ -9,8 +9,17 @@ export const uploadPreCheck = (params: UploadFileParams) => {
   return request.get<UploadPreCheckData>('/file/preCheckFileExist', { params })
 }
 
-export const uploadFileMerge = (params: UploadFileParams) => {
-  return request.post<UploadFileMergeData>('/file/merge', params)
+export const uploadFileMerge = (params: UploadFileMergeParams) => {
+  const formData = new FormData()
+  for(const key in params) {
+    const value = params[key as keyof typeof params]
+    if(typeof value == 'number') {
+      formData.append(key, value.toString())
+    } else if(typeof value == 'string' || typeof value != 'undefined') {
+      formData.append(key, value)
+    }
+  }
+  return request.post<UploadFileMergeData>('/file/merge', formData)
 }
 
 export const downloadFile = (params: DownloadFileParams) => {
@@ -19,6 +28,10 @@ export const downloadFile = (params: DownloadFileParams) => {
 
 export const deleteFiles = (params: DeleteFilesParams) => {
   return request.post<ResponseData>('/file/deleteFiles', params)
+}
+
+export const createDirectory = (params: CreateDirectoryParams) => {
+  return request.post('/file/createDir', params)
 }
 
 export interface GetNowFileListParams {
@@ -35,6 +48,10 @@ export interface UploadFileParams {
   groupId: number
 }
 
+export interface UploadFileMergeParams extends UploadFileParams {
+  icon?: File
+}
+
 export interface DownloadFileParams {
   groupId: number
   id: React.Key
@@ -46,6 +63,12 @@ export interface DeleteFilesParams {
   destination: string
   groupId: number
   files: FileInformation[]
+}
+
+export interface CreateDirectoryParams {
+  destination: string
+  groupId: number
+  dirName: string
 }
 
 export interface UploadPreCheckData extends ResponseData {
