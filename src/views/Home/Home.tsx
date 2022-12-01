@@ -10,6 +10,8 @@ import { baseURL } from '@/util/request'
 import { getToken } from '@/util/secret'
 import { computedMd5 } from '@/util/file'
 import { uploadFileMerge, uploadPreCheck } from '@/api/file'
+import { useStoreDispatch } from '@/store'
+import { getFileList } from '@/store/features/fileSlice'
 
 const Home: React.FC = () => {
   const navigate = useNavigate()
@@ -28,7 +30,8 @@ const Home: React.FC = () => {
       return params
     }
   })
-  let [uploadList, setUploadList] = useState<any>([])
+  let [uploadList, setUploadList] = useState<any>([])//用于渲染的上传列表
+  const dispatch = useStoreDispatch()
 
   // 添加单个文件
   uploader.on('fileAdded', (uploadFile: any) => {
@@ -51,32 +54,41 @@ const Home: React.FC = () => {
         groupId: groupId
       }).then(res => {
         const result = res.data
-        // if(result.data.isSkip) {
-        //   message.success('上传成功')
-        //   uploadFile.cancel()
-        //   setUploadList((preUploadList: any) => preUploadList.filter((item: any) => item.uniqueIdentifier != uploadFile.uniqueIdentifier))
-        // } else {
-        //   console.log('开始上传')
-        //   // uploader.upload()
-        // }
-        // 选择文件会导致Home重新加载uploadList值改变，但preUploadList的值不会改变(太魔幻了)
-        setUploadList((preUploadList: any) => {
-          // console.log(preUploadList)
-          const filterList = preUploadList.filter((item: any) => {
-            return item.uniqueIdentifier == uploadFile.uniqueIdentifier && item.relativePath == uploadFile.relativePath
+        if (result.data.isSkip) {
+          // console.log(uploadFile)
+          uploadFile.cancel()
+          uploadFile.isReady = true
+          setUploadList((preUploadList: any) => preUploadList.map((item: any) => {
+            if(item.uniqueIdentifier == uploadFile.uniqueIdentifier) {
+              item._prevProgress = 1//展示的上传进度
+              item.completed = true//展示的完成状态
+              //上传大小仍然是0，不过不显示就无所谓了
+            }
+            return item
+          }))
+          dispatch(getFileList({ groupId, absolutePath: path }))//刷新列表
+        } else {
+          console.log('开始上传')
+          // 选择文件会导致Home重新加载uploadList值改变，但preUploadList的值不会改变(太魔幻了)
+          setUploadList((preUploadList: any) => {
+            // console.log(preUploadList)
+            const filterList = preUploadList.filter((item: any) => {
+              return item.uniqueIdentifier == uploadFile.uniqueIdentifier && item.relativePath == uploadFile.relativePath
+            })
+            if (filterList.length > 1) {
+              message.warn('同一路径不能上传相同文件')
+              // console.log('重复文件')
+              return preUploadList.filter((item: any) => item.timestamp != uploadFile.timestamp)
+            } else {
+              // console.log('上传队列', uploadList)//Home重新渲染这里的值已经丢失了
+              // console.log('开始上传', uploadFile)
+              uploadFile.isReady = true
+              uploader.upload()
+              // uploadFile.resume()
+              return preUploadList
+            }
           })
-          if (filterList.length > 1) {
-            message.warn('同一路径不能上传相同文件')
-            // console.log('重复文件')
-            return preUploadList.filter((item: any) => item.timestamp != uploadFile.timestamp)
-          } else {
-            // console.log('上传队列', uploadList)//Home重新渲染这里的值已经丢失了
-            // console.log('开始上传', uploadFile)
-            uploadFile.isReady = true
-            uploader.upload()
-            return preUploadList
-          }
-        })
+        }
       }).catch(err => {
         console.log(err)
       })
@@ -97,6 +109,7 @@ const Home: React.FC = () => {
     }).then(res => {
       if (res.data.code == 200) {
         console.log('文件上传成功')
+        dispatch(getFileList({ groupId, absolutePath: path }))//刷新列表
       } else {
         console.log(res.data.msg)
       }

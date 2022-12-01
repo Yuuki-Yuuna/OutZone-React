@@ -19,6 +19,37 @@
         font-weight: 700;
       }
 
+      .path {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        .back {
+          color: #06a7ff;
+          font-size: 12px;
+          cursor: pointer;
+        }
+
+        .path-unit {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          font-size: 12px;
+        
+          .sign {
+            margin: 0 8px;
+            color: #c4d8f4;
+            cursor: default;
+            transform: translateY(-2px);
+          }
+
+          .text {
+            color: #06a7ff;
+            cursor: pointer;
+          }
+        }
+      }
+
       span {
         display: flex;
         justify-content: space-between;
@@ -38,7 +69,6 @@
     //含有antd样式修改
     .table {
       padding-left: 2px;
-      max-height: calc(100% - 62px);
 
       th {
         font-size: 14px;
@@ -60,7 +90,7 @@
         background-color: #f2faff;
 
         .text {
-          max-width: calc(100% - 120px);
+          max-width: calc(100% - 120px) !important;
         }
 
         .button-group {
@@ -73,11 +103,13 @@
       }
 
       .file-selection {
+        white-space: nowrap;
         cursor: pointer;
 
         .text {
           display: inline-block;
           height: 40px;
+          max-width: calc(100% - 20px);
           line-height: 40px;
           padding-left: 12px;
           vertical-align: middle;

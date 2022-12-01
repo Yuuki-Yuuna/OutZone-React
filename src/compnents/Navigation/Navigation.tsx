@@ -46,7 +46,7 @@ const Navigation: React.FC<PropsType> = (props) => {
     if (uploadList.length) {
       setDropdownOpen(true)
     }
-  }, [uploadList])
+  }, [uploadList.length])
 
   const uploadDropdownRender = () => {
     return (

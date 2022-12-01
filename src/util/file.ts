@@ -25,6 +25,21 @@ export const checkFileType = (filename: string) => {
   }
 }
 
+export const checkFileCategory = (extname: string) => {
+  const createFilter = (name: string) => (item: string) => item == name 
+  if(document.some(createFilter(extname))) {
+    return 'document'
+  } else if(image.some(createFilter(extname))) {
+    return 'image'
+  } else if(audio.some(createFilter(extname))) {
+    return 'audio'
+  } else if(video.some(createFilter(extname))) {
+    return 'video'
+  } else {
+    return 'other'
+  }
+}
+
 export const computedFileSize = (byte?: number | null) => {
   let size = '-'
   if (typeof byte == 'number') {

@@ -5,7 +5,7 @@ import Navigation from '@/compnents/Navigation/Navigation'
 const Mobile: React.FC = () => {
   return (
     <div className='mobile'>
-      <Navigation />
+      {/* <Navigation /> */}
       Mobile
     </div>
   )

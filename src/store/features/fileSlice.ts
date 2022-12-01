@@ -45,6 +45,7 @@ const fileSlice = createSlice({
 
 export const getFileList = createAsyncThunk('file/getFileList', async (params: GetNowFileListParams) => {
   const { data } = await getNowFileList(params)
+  // console.log(data)
   return data
 })
 
