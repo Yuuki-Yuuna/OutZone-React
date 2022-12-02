@@ -57,3 +57,21 @@
     }
   }
 }
+
+//对话框样式
+.dialog-model {
+
+  h4 {
+    font-weight: 700;
+  }
+
+  .dialog-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .input-wrapper {
+      margin-left: 24px;
+    }
+  }
+}

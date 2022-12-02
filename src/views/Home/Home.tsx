@@ -1,7 +1,7 @@
 import React, { Suspense, useState } from 'react'
 import './Home.scss'
 import Navigation from '@/compnents/Navigation/Navigation'
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom'
+import { Outlet, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { Menu, Progress, message } from 'antd'
 import { FolderOutlined, FileOutlined, FolderOpenOutlined, FileImageOutlined, CustomerServiceOutlined, PlayCircleOutlined, EllipsisOutlined, DeleteOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
@@ -16,7 +16,9 @@ import { getFileList } from '@/store/features/fileSlice'
 const Home: React.FC = () => {
   const navigate = useNavigate()
   const [search] = useSearchParams()
+  const { category } = useParams()
   const path = (search.get('path') ? search.get('path') : '/') as string
+  const uploadPath = path == '/' || category != 'all' ? '/' : path + '/'
   const groupId = -1
   const uploader = new Uploader({
     target: baseURL + '/file/upload',
@@ -43,7 +45,7 @@ const Home: React.FC = () => {
     //异步后执行，此时文件已添加
     computedMd5(uploadFile.file).then(res => {
       uploadFile.uniqueIdentifier = res
-      uploadFile.relativePath = path
+      uploadFile.relativePath = uploadPath
       // console.log(uploader)
       uploadPreCheck({
         totalSize: uploadFile.size,
@@ -66,7 +68,7 @@ const Home: React.FC = () => {
             }
             return item
           }))
-          dispatch(getFileList({ groupId, absolutePath: path }))//刷新列表
+          dispatch(getFileList({ groupId, absolutePath: uploadPath }))//刷新列表
         } else {
           console.log('开始上传')
           // 选择文件会导致Home重新加载uploadList值改变，但preUploadList的值不会改变(太魔幻了)
@@ -117,7 +119,7 @@ const Home: React.FC = () => {
       const res = await uploadFileMerge(params)
       if (res.data.code == 200) {
         console.log('文件上传成功')
-        dispatch(getFileList({ groupId, absolutePath: path }))//刷新列表
+        dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: category }))//刷新列表
       } else {
         message.error(res.data.msg)
         // console.log(res.data.msg)
@@ -137,6 +139,7 @@ const Home: React.FC = () => {
       navigate('/home/timeline')
     } else {
       navigate(`/home/directory/${event.key}`)
+      dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: event.key }))
     }
   }
 

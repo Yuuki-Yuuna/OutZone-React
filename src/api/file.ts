@@ -5,17 +5,21 @@ export const getNowFileList = (params: GetNowFileListParams) => {
   return request.post<GetNowFileListData>('/file/getNowFileList', params)
 }
 
+export const getNowFileListByFileType = (params: GetNowFileListByFileTypeParams) => {
+  return request.get<GetNowFileListData>('/file/groupByFileType', { params })
+}
+
 export const uploadPreCheck = (params: UploadFileParams) => {
   return request.get<UploadPreCheckData>('/file/preCheckFileExist', { params })
 }
 
 export const uploadFileMerge = (params: UploadFileMergeParams) => {
   const formData = new FormData()
-  for(const key in params) {
+  for (const key in params) {
     const value = params[key as keyof typeof params]
-    if(typeof value == 'number') {
+    if (typeof value == 'number') {
       formData.append(key, value.toString())
-    } else if(typeof value == 'string' || typeof value != 'undefined') {
+    } else if (typeof value == 'string' || typeof value != 'undefined') {
       formData.append(key, value)
     }
   }
@@ -23,7 +27,7 @@ export const uploadFileMerge = (params: UploadFileMergeParams) => {
 }
 
 export const downloadFile = (params: DownloadFileParams) => {
-  return request.post('/file/download', params)
+  return request.post<DownloadFileData>('/file/download', params, { headers: { 'content-type': 'application/x-www-form-urlencoded' } })
 }
 
 export const deleteFiles = (params: DeleteFilesParams) => {
@@ -31,12 +35,24 @@ export const deleteFiles = (params: DeleteFilesParams) => {
 }
 
 export const createDirectory = (params: CreateDirectoryParams) => {
-  return request.post('/file/createDir', params)
+  return request.post<ResponseData>('/file/createDir', params)
+}
+
+export const renameFile = (params: RenameFileParams) => {
+  return request.post<ResponseData>('/file/renameFile', params)
+}
+
+export const renameDirectory = (params: RenameFileParams) => {
+  return request.post<ResponseData>('/file/renameDir', params)
 }
 
 export interface GetNowFileListParams {
   groupId: number
   absolutePath: string
+}
+
+export interface GetNowFileListByFileTypeParams {
+  fileType: string
 }
 
 export interface UploadFileParams {
@@ -71,6 +87,12 @@ export interface CreateDirectoryParams {
   dirName: string
 }
 
+export interface RenameFileParams {
+  groupId: number
+  id: React.Key
+  newName: string
+}
+
 export interface UploadPreCheckData extends ResponseData {
   data: {
     isSkip: boolean,
@@ -84,6 +106,10 @@ export interface UploadFileMergeData extends ResponseData {
 
 export interface GetNowFileListData extends ResponseData {
   data: FileInformation[]
+}
+
+export interface DownloadFileData extends ResponseData {
+  data: string
 }
 
 interface ResponseData {

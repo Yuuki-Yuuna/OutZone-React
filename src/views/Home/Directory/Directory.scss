@@ -35,7 +35,7 @@
           justify-content: center;
           align-items: center;
           font-size: 12px;
-        
+
           .sign {
             margin: 0 8px;
             color: #c4d8f4;
@@ -44,6 +44,10 @@
           }
 
           .text {
+            // max-width: 90px;
+            
+            // white-space: nowrap;
+            // text-overflow: ellipsis;
             color: #06a7ff;
             cursor: pointer;
           }
@@ -68,6 +72,7 @@
 
     //含有antd样式修改
     .table {
+      min-width: 600px;
       padding-left: 2px;
 
       th {
@@ -85,6 +90,14 @@
         padding: 5px 16px;
       }
 
+      .info {
+        font-size: 14px;
+
+        @media screen and (max-width: 1200px) {
+          font-size: 12px;
+        }
+      }
+
       //antd-table实现hover原理
       .ant-table-cell-row-hover {
         background-color: #f2faff;
@@ -93,8 +106,8 @@
           max-width: calc(100% - 120px) !important;
         }
 
-        .button-group {
-          display: flex !important;
+        .date-selection .button-group {
+          display: flex;
         }
 
         .info {
@@ -111,14 +124,47 @@
           height: 40px;
           max-width: calc(100% - 20px);
           line-height: 40px;
-          padding-left: 12px;
+          padding-left: 16px;
           vertical-align: middle;
           overflow: hidden;
           white-space: nowrap;
           text-overflow: ellipsis;
+          font-size: 12px;
+          font-weight: 500;
 
           &:hover {
             color: #06a7ff;
+          }
+        }
+
+        .input {
+          display: inline-block;
+          height: 40px;
+          line-height: 40px;
+          padding-left: 10px;
+          vertical-align: middle;
+
+          .ant-input {
+            width: auto;
+            height: 24px;
+            font-size: 12px;
+            font-weight: 500;
+            padding-left: 6px;
+          }
+
+          .button-group {
+            display: inline-block;
+            height: 40px;
+            line-height: 40px;
+            padding-left: 5px;
+
+            .button {
+              width: 24px;
+              height: 24px;
+              margin: 0 2px;
+              background: #06a7ff;
+              border-color: #06a7ff;
+            }
           }
         }
       }

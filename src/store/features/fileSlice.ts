@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 import type { FileInformation } from '@/type/File'
-import { getNowFileList } from '@/api/file'
+import { getNowFileList, getNowFileListByFileType } from '@/api/file'
 import type { GetNowFileListParams } from '@/api/file'
 import { message } from 'antd'
 
@@ -30,7 +30,7 @@ const fileSlice = createSlice({
         state.status = 'loading'
       })
       .addCase(getFileList.fulfilled, (state, action) => {
-        if(action.payload.code == 200) {
+        if (action.payload.code == 200) {
           state.fileList = action.payload.data
         } else {
           message.error(action.payload.msg)
@@ -45,11 +45,15 @@ const fileSlice = createSlice({
   }
 })
 
-export const getFileList = createAsyncThunk('file/getFileList', async (params: GetNowFileListParams) => {
-  const { data } = await getNowFileList(params)
-  // console.log(data)
+export const getFileList = createAsyncThunk('file/getFileList', async (params: GetFileListParams) => {
+  const { data } = params.fileType && params.fileType != 'all' ? await getNowFileListByFileType({ fileType: params.fileType }) : await getNowFileList(params)
+  console.log(data)
   return data
 })
+
+interface GetFileListParams extends GetNowFileListParams {
+  fileType?: string
+}
 
 export const { setFileList } = fileSlice.actions
 

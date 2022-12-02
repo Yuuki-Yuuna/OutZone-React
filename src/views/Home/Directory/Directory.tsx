@@ -1,16 +1,16 @@
 import React, { useRef, useState, useEffect, useMemo } from 'react'
 import './Directory.scss'
 import FileManage from '@/compnents/FileManage/FileManage'
-import { Table, Image, Dropdown, Input, message } from 'antd'
-import { ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined, LoadingOutlined } from '@ant-design/icons'
+import { Table, Image, Dropdown, Input, message, Button } from 'antd'
+import { ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined, LoadingOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { FileInformation } from '@/type/File'
 import { useStoreSelector, useStoreDispatch } from '@/store'
 import { getFileList } from '@/store/features/fileSlice'
-import { checkFileCategory, computedFileSize } from '@/util/file'
+import { computedFileSize } from '@/util/file'
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom'
-import { deleteFiles, downloadFile } from '@/api/file'
+import { deleteFiles, downloadFile, renameDirectory, renameFile } from '@/api/file'
 
 const Directory: React.FC = () => {
   let [fold, setFold] = useState(false)//折叠开关
@@ -20,20 +20,16 @@ const Directory: React.FC = () => {
   let [selectedDataRows, setSelectedDataRows] = useState<FileInformation[]>([])//当前选中项数组
   const fileList = useStoreSelector(state => state.file.fileList)
   const loadingStatus = useStoreSelector(state => state.file.status)
+  let [isLoading, setIsloading] = useState(false)//加载状态由isLoading和loadingStatus共同组成
   const dispatch = useStoreDispatch()
   const [search, setSearch] = useSearchParams()
-  const path = (search.get('path') ? search.get('path') : '/') as string
   const { category } = useParams()
+  const path = (search.get('path') ? search.get('path') : '/') as string
+  const uploadPath = path == '/' || category != 'all' ? '/' : path + '/'//上传路径有'/'
   const { groupId, uploader } = useOutletContext<ContextType>()
-  const filterFileList = useMemo(() => {
-    return fileList.filter(file => {
-      if (category == 'all') {
-        return true
-      } else if (file.type) {
-        return checkFileCategory(file.type) == category
-      }
-    })
-  }, [category, fileList])
+  let [editingData, setEditingData] = useState<FileInformation | null>(null)//处于编辑状态的数据
+  let [editingName, setEditingName] = useState('')
+  let [firstEdit, setFirstEdit] = useState(true)//是否第一次编辑
 
   const pathBack = () => {
     let pathUnits = path.split('/')
@@ -57,41 +53,50 @@ const Directory: React.FC = () => {
     // //柯里化传参，changeOperation渲染时会被调用多次,不要有多余操作
     return () => operationType = type//别用setState，这个数据不用渲染并且setState(虽然同步但有延迟,看了下原理)会导致修改不及时出bug
   }
-  const fileEnter = (fileInfo: FileInformation) => {
+  const fileEnter = (file: FileInformation) => {
     return (event: React.MouseEvent) => {
       event.stopPropagation()//阻止冒泡
-      if (fileInfo.directoryType) {
-        const newPath = fileInfo.path.slice(0, fileInfo.path.length - 1)
+      if (file.directoryType) {
+        const newPath = file.path.slice(0, file.path.length - 1)
         search.set('path', newPath)
         setSearch(search)
-        setSelectedDataKeys([])
       }
     }
   }
   const fileShare = () => {
     console.log('分享')
   }
-  const fileDownload = (file: FileInformation) => {
-    console.log('下载', file)
-    downloadFile({
-      groupId,
-      parentId: file.parentId,
-      id: file.id,
-      filename: file.name
-    }).then(res => {
-      console.log(res.data)
-    }).catch(err => {
-      console.log(err)
-    })
+  const fileDownload = (files: FileInformation[]) => {
+    console.log('下载', files)
+    if (files.length == 1) {
+      const file = files[0]
+      downloadFile({
+        groupId,
+        parentId: file.parentId,
+        id: file.id,
+        filename: file.name
+      }).then(res => {
+        // console.log(res.data)
+        const result = res.data
+        if (result.code == 200) {
+          const a = document.createElement('a')
+          a.href = res.data.data
+          a.click()
+        } else {
+          message.error(result.msg)
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    }
   }
   const fileDelete = (files: FileInformation[]) => {
     // console.log('删除', files)
-    const destination = path == '/' ? path : path + '/'
-    deleteFiles({ destination, groupId, files }).then(res => {
+    deleteFiles({ destination: uploadPath, groupId, files }).then(res => {
       // console.log(res.data)
       if (res.data.code == 200) {
         message.success('删除成功')
-        dispatch(getFileList({ groupId, absolutePath: path }))
+        dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: category }))
       } else {
         message.error(res.data.msg)
       }
@@ -99,8 +104,11 @@ const Directory: React.FC = () => {
       console.log(err)
     })
   }
-  const fileRename = () => {
-    console.log('重命名')
+  const fileRename = (file: FileInformation) => {
+    // console.log('重命名', file)
+    setEditingData(file)
+    setEditingName(file.directoryType ? file.name.slice(1, file.name.length - 1) : file.name)
+    setFirstEdit(true)
   }
   const fileCopy = () => {
     console.log('复制')
@@ -114,19 +122,67 @@ const Directory: React.FC = () => {
   const fileOpen = () => {
     // console.log('打开', selectedData)
     if (selectedDataRows[0]?.directoryType) {
-      let path = selectedDataRows[0].path
-      path = selectedDataRows[0].directoryType ? path.slice(0, path.length - 1) : path
-      console.log(path)
-      search.set('path', path)
+      let newPath = selectedDataRows[0].path
+      newPath = selectedDataRows[0].directoryType ? newPath.slice(0, newPath.length - 1) : newPath
+      console.log(newPath)
+      search.set('path', newPath)
       setSearch(search)
     }
   }
   const fileSearch = () => {
 
   }
+  const fileRenameCheck = async (event: React.MouseEvent) => {
+    event.stopPropagation()
+    try {
+      if (editingData) {
+        setIsloading(true)
+        const params = { groupId, id: editingData.id, newName: editingData.directoryType ? '/' + editingName + '/' : editingName }
+        const res = editingData.directoryType ? await renameDirectory(params) : await renameFile(params)
+        const result = res.data
+        if (result.code == 200) {
+          message.success('重命名成功~')
+          dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: category }))
+        } else {
+          message.error(result.msg)
+        }
+        setEditingData(null)
+        setIsloading(false)
+        setSelectedDataKeys([])
+        setSelectedDataRows([])
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+  const fileRenameCancel = (event: React.MouseEvent) => {
+    event.stopPropagation()
+    setEditingData(null)
+  }
+  const onEditFocus = (event: React.FocusEvent) => {
+    // console.log(event)
+    const target = event.target as HTMLInputElement
+    // console.log(target.id)
+    //注意id转string不要打三个等
+    if (target.id == editingData?.id && firstEdit) {
+      const slices = target.value.split('.')
+      if (slices.length == 1) {
+        target.setSelectionRange(0, target.value.length)
+      } else {
+        target.setSelectionRange(0, target.value.length - slices[slices.length - 1].length - 1)
+      }
+      setFirstEdit(false)
+    }
+  }
+  const onFilenameChange = (event: React.ChangeEvent) => {
+    const input = event.target as HTMLInputElement
+    setEditingName(input.value)
+  }
 
   useEffect(() => {
-    dispatch(getFileList({ groupId, absolutePath: path }))
+    dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: category }))
+    setSelectedDataKeys([])
+    setEditingData(null)
   }, [path])
 
   const dropdownItems: MenuProps['items'] = [
@@ -167,11 +223,11 @@ const Directory: React.FC = () => {
         switch (operationType) {
           case 'share': fileShare()
             break
-          case 'download': fileDownload(record)
+          case 'download': fileDownload([record])
             break
           case 'delete': fileDelete([record])
             break
-          case 'rename': fileRename()
+          case 'rename': fileRename(record)
             break
           case 'copy': fileCopy()
             break
@@ -216,7 +272,7 @@ const Directory: React.FC = () => {
       if (selectedRows.length == 0) {
         rightMenu.current!.style.display = 'none'
       }
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
+      // console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows)
     }
   }
 
@@ -228,18 +284,27 @@ const Directory: React.FC = () => {
         return (
           <div className='file-selection'>
             <Image src={record.icon} preview={false} width={32} height={32} style={{ borderRadius: '6px', objectFit: 'cover' }} />
-            <span className='text' onClick={fileEnter(record)}>{record.directoryType ? text.slice(1, text.length - 1) : text}</span>
+            {editingData?.id == record.id ? (
+              <span className='input'>
+                <Input autoFocus={true} id={record.id.toString()} onFocus={onEditFocus} value={editingName} onChange={onFilenameChange} maxLength={50} />
+                <span className='button-group'>
+                  <Button className='button' type='primary' icon={<CheckOutlined />} onClick={fileRenameCheck}></Button>
+                  <Button className='button' type='primary' icon={<CloseOutlined />} onClick={fileRenameCancel}></Button>
+                </span>
+              </span>
+            ) : <span className='text' onClick={fileEnter(record)}>{record.directoryType ? text.slice(1, text.length - 1) : text}</span>}
           </div>
         )
-      }
+      },
+      width: '60%'
     },
     {
       title: '创建时间',
       dataIndex: 'uploadDate',
-      render: (text) => (
+      render: (text, record) => (
         <div className='date-selection'>
           <span className='info'>{text}</span>
-          <div className='button-group'>
+          <div className='button-group' style={{ display: editingData?.id == record.id ? 'none' : '' }}>
             <ShareAltOutlined className='button' title='分享' onClick={changeOperation('share')} />
             <DownloadOutlined className='button' title='下载' onClick={changeOperation('download')} />
             <DeleteOutlined className='button' title='删除' onClick={changeOperation('delete')} />
@@ -254,7 +319,7 @@ const Directory: React.FC = () => {
     {
       title: '大小',
       dataIndex: 'size',
-      render: (text) => <span className='info'>{computedFileSize(text)}</span>
+      render: (text) => <span className='info'>{computedFileSize(text)}</span>,
     }
   ]
 
@@ -274,12 +339,13 @@ const Directory: React.FC = () => {
                 // console.log(item, index)
                 let itemPath = ''
                 for (let i = 0; i <= index; i++) {
-                  itemPath += '/' + item
+                  itemPath += '/' + arr[i]
                 }
+                // console.log(itemPath)
                 return (
-                  <div className='path-unit' key={itemPath} onClick={() => { pathTo(itemPath) }}>
+                  <div className='path-unit' key={itemPath}>
                     <span className='sign' style={{ fontSize: '18px' }}>&gt;</span>
-                    <span className='text' style={{ color: index == arr.length - 1 ? '#818999' : '#06a7ff' }}>{item}</span>
+                    <span className='text' style={{ color: index == arr.length - 1 ? '#818999' : '#06a7ff' }} onClick={pathTo(itemPath)}>{item}</span>
                   </div>
                 )
               })}
@@ -294,17 +360,17 @@ const Directory: React.FC = () => {
             columns={columns}
             rowKey={(record) => record.id}
             rowSelection={{ ...rowSelection }}
-            dataSource={filterFileList}
+            dataSource={fileList}
             pagination={false}
             onRow={rowOption}
             scroll={{ y: 520 }}
-            loading={{ indicator: <LoadingOutlined />, spinning: loadingStatus == 'loading', size: 'large' }}
+            loading={{ indicator: <LoadingOutlined />, spinning: loadingStatus == 'loading' || isLoading, size: 'large' }}
           />
           <div className='right-menu' ref={rightMenu}>
             <div className='menu-item' onClick={fileOpen} style={{ display: selectedDataKeys.length <= 1 ? 'block' : 'none' }}>
               <span>打开</span>
             </div>
-            <div className='menu-item' onClick={() => { }}>
+            <div className='menu-item' onClick={() => fileDownload(selectedDataRows)}>
               <DownloadOutlined />
               <span>下载</span>
             </div>
@@ -324,7 +390,7 @@ const Directory: React.FC = () => {
               <DragOutlined />
               <span>移动</span>
             </div>
-            <div className='menu-item' onClick={fileRename} style={{ display: selectedDataKeys.length <+ 1 ? 'block' : 'none' }}>
+            <div className='menu-item' onClick={() => fileRename(selectedDataRows[0])} style={{ display: selectedDataKeys.length <= 1 ? 'block' : 'none' }}>
               <EditOutlined />
               <span>重命名</span>
             </div>
@@ -354,11 +420,11 @@ const Directory: React.FC = () => {
               <Image src={selectedDataKeys.length == 1 ? selectedDataRows[0].icon : new URL('../../../assets/icon/folder.png', import.meta.url).href} preview={false} style={{ borderRadius: '9.5px' }} />
             </div>
             <div className='information' style={{ display: selectedDataKeys.length == 1 ? 'block' : 'none' }}>
-              <h4>{selectedDataRows[0].directoryType ? selectedDataRows[0].name.slice(1, selectedDataRows[0].name.length - 1) : selectedDataRows[0].name}</h4>
+              <h4>{selectedDataRows[0]?.directoryType ? selectedDataRows[0]?.name.slice(1, selectedDataRows[0].name.length - 1) : selectedDataRows[0]?.name}</h4>
               <ul>
                 <li>创建时间：{selectedDataRows[0]?.uploadDate}</li>
                 <li>文件大小：{computedFileSize(selectedDataRows[0]?.size)}</li>
-                <li>所在目录：{selectedDataRows[0]?.directoryType ? selectedDataRows[0].path.slice(0, selectedDataRows[0].path.length - 1) : selectedDataRows[0]?.path}</li>
+                <li>所在目录：{selectedDataRows[0]?.path == '/' ? selectedDataRows[0]?.path : selectedDataRows[0]?.path.slice(0, selectedDataRows[0].path.length - 1)}</li>
               </ul>
             </div>
           </div>
