@@ -44,12 +44,13 @@
           }
 
           .text {
-            // max-width: 90px;
-            
-            // white-space: nowrap;
-            // text-overflow: ellipsis;
+            display: inline-block;
             color: #06a7ff;
             cursor: pointer;
+            max-width: 90px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
           }
         }
       }

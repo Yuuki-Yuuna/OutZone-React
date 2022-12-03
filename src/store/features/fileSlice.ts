@@ -47,7 +47,7 @@ const fileSlice = createSlice({
 
 export const getFileList = createAsyncThunk('file/getFileList', async (params: GetFileListParams) => {
   const { data } = params.fileType && params.fileType != 'all' ? await getNowFileListByFileType({ fileType: params.fileType }) : await getNowFileList(params)
-  console.log(data)
+  // console.log(data)
   return data
 })
 

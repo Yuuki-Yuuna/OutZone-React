@@ -1,25 +1,28 @@
 .file-manage {
-  display: flex;
   padding: 5px 10px;
   height: 42px;
 
-  .upload-wrapper {
+  .file-uploader {
+    display: flex;
 
-    .upload-button {
-      position: relative;
-      font-size: 14px;
-      font-weight: 700;
-      background-color: #40a9ff;
-    }
+    .upload-wrapper {
 
-    input {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
+      .upload-button {
+        position: relative;
+        font-size: 14px;
+        font-weight: 700;
+        background-color: #40a9ff;
+      }
+
+      input {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+      }
     }
   }
 
@@ -31,6 +34,7 @@
     background-color: #e6f7ff;
     border-radius: 15px;
     overflow: hidden;
+    height: 32px;
 
     .button {
       position: relative;
@@ -55,6 +59,10 @@
         margin-right: 5px;
       }
     }
+  }
+
+  .file-selection {
+    display: flex;
   }
 }
 

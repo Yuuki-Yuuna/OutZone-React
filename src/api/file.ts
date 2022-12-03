@@ -30,7 +30,7 @@ export const downloadFile = (params: DownloadFileParams) => {
   return request.post<DownloadFileData>('/file/download', params, { headers: { 'content-type': 'application/x-www-form-urlencoded' } })
 }
 
-export const deleteFiles = (params: DeleteFilesParams) => {
+export const deleteFiles = (params: ContorlFilesParams) => {
   return request.post<ResponseData>('/file/deleteFiles', params)
 }
 
@@ -44,6 +44,14 @@ export const renameFile = (params: RenameFileParams) => {
 
 export const renameDirectory = (params: RenameFileParams) => {
   return request.post<ResponseData>('/file/renameDir', params)
+}
+
+export const moveFiles = (params: ContorlFilesParams) => {
+  return request.post<ResponseData>('/file/moveFiles', params)
+}
+
+export const copyFiles = (params: ContorlFilesParams) => {
+  return request.post<ResponseData>('/file/copyFiles', params)
 }
 
 export interface GetNowFileListParams {
@@ -75,7 +83,7 @@ export interface DownloadFileParams {
   filename: string
 }
 
-export interface DeleteFilesParams {
+export interface ContorlFilesParams {
   destination: string
   groupId: number
   files: FileInformation[]

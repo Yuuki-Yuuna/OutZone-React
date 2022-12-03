@@ -1,11 +1,12 @@
-import React, { useRef, useState, useEffect, useMemo } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import './Directory.scss'
 import FileManage from '@/compnents/FileManage/FileManage'
+import FileTransform from '@/compnents/FileTransform/FileTransform'
 import { Table, Image, Dropdown, Input, message, Button } from 'antd'
 import { ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined, LoadingOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
-import type { FileInformation } from '@/type/File'
+import type { FileInformation, TransformType } from '@/type/File'
 import { useStoreSelector, useStoreDispatch } from '@/store'
 import { getFileList } from '@/store/features/fileSlice'
 import { computedFileSize } from '@/util/file'
@@ -30,6 +31,9 @@ const Directory: React.FC = () => {
   let [editingData, setEditingData] = useState<FileInformation | null>(null)//处于编辑状态的数据
   let [editingName, setEditingName] = useState('')
   let [firstEdit, setFirstEdit] = useState(true)//是否第一次编辑
+  let [transformOpen, setTransformOpen] = useState(false)//移动复制对话框
+  let [transformType, setTransformType] = useState<TransformType>(null)
+  let [transformFiles, setTransformFiles] = useState<FileInformation[]>([])
 
   const pathBack = () => {
     let pathUnits = path.split('/')
@@ -92,6 +96,7 @@ const Directory: React.FC = () => {
   }
   const fileDelete = (files: FileInformation[]) => {
     // console.log('删除', files)
+    setIsloading(true)
     deleteFiles({ destination: uploadPath, groupId, files }).then(res => {
       // console.log(res.data)
       if (res.data.code == 200) {
@@ -100,6 +105,9 @@ const Directory: React.FC = () => {
       } else {
         message.error(res.data.msg)
       }
+      setSelectedDataKeys([])
+      setSelectedDataRows([])
+      setIsloading(false)
     }).catch(err => {
       console.log(err)
     })
@@ -110,11 +118,11 @@ const Directory: React.FC = () => {
     setEditingName(file.directoryType ? file.name.slice(1, file.name.length - 1) : file.name)
     setFirstEdit(true)
   }
-  const fileCopy = () => {
-    console.log('复制')
-  }
-  const fileMove = () => {
-    console.log('移动')
+  //复制移动文件
+  const fileTransform = (files: FileInformation[], type: TransformType) => {
+    setTransformType(type)
+    setTransformFiles(files)
+    setTransformOpen(true)
   }
   const fileGroup = () => {
     console.log('共享')
@@ -182,6 +190,7 @@ const Directory: React.FC = () => {
   useEffect(() => {
     dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: category }))
     setSelectedDataKeys([])
+    setSelectedDataRows([])
     setEditingData(null)
   }, [path])
 
@@ -229,9 +238,9 @@ const Directory: React.FC = () => {
             break
           case 'rename': fileRename(record)
             break
-          case 'copy': fileCopy()
+          case 'copy': fileTransform([record], 'copy')
             break
-          case 'move': fileMove()
+          case 'move': fileTransform([record], 'move')
             break
           case 'group': fileGroup()
             break
@@ -326,7 +335,7 @@ const Directory: React.FC = () => {
   return (
     <div className='directory'>
       <div className='content'>
-        <FileManage uploader={uploader} />
+        <FileManage {...{uploader, selectedDataRows, fileDownload, fileDelete, fileRename, fileTransform}} />
         <div className='title'>
           {path == '/' ? <h4>{'全部文件'}</h4> : (
             <div className='path'>
@@ -337,6 +346,14 @@ const Directory: React.FC = () => {
               </div>
               {path.split('/').filter(item => item).map((item, index, arr) => {
                 // console.log(item, index)
+                if (arr.length > 3 && index < arr.length - 3) {
+                  return index ? '' : (
+                    <div className='path-unit' key='...'>
+                      <span className='sign' style={{ fontSize: '18px' }}>&gt;</span>
+                      <span className='text' style={{ color: '#818999', fontSize: '16px' }}>...</span>
+                    </div>
+                  )
+                }
                 let itemPath = ''
                 for (let i = 0; i <= index; i++) {
                   itemPath += '/' + arr[i]
@@ -382,11 +399,11 @@ const Directory: React.FC = () => {
               <UsergroupAddOutlined />
               <span>共享</span>
             </div>
-            <div className='menu-item' onClick={fileCopy}>
+            <div className='menu-item' onClick={() => fileTransform(selectedDataRows, 'copy')}>
               <CopyOutlined />
               <span>复制</span>
             </div>
-            <div className='menu-item' onClick={fileMove}>
+            <div className='menu-item' onClick={() => fileTransform(selectedDataRows, 'move')}>
               <DragOutlined />
               <span>移动</span>
             </div>
@@ -399,6 +416,7 @@ const Directory: React.FC = () => {
               <span>删除</span>
             </div>
           </div>
+          <FileTransform {...{ transformOpen, setTransformOpen, transformType, setTransformType, transformFiles }} />
         </div>
       </div>
       <div className='preview' style={{ display: fold ? 'none' : 'block' }}>

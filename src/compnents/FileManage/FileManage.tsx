@@ -1,15 +1,16 @@
 import React, { useRef, useState } from 'react'
 import './FileManage.scss'
 import { Button, Input, Modal, Image, message } from 'antd'
-import { UploadOutlined, FolderAddOutlined, FileAddOutlined } from '@ant-design/icons'
+import { UploadOutlined, FolderAddOutlined, FileAddOutlined, ShareAltOutlined, UsergroupAddOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, DragOutlined, CopyOutlined } from '@ant-design/icons'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { createDirectory } from '@/api/file'
-import { useStoreDispatch } from '@/store'
+import { useStoreDispatch, useStoreSelector } from '@/store'
 import { getFileList } from '@/store/features/fileSlice'
+import type { FileInformation, TransformType } from '@/type/File'
 
 const FileManage: React.FC<PropsType> = (props) => {
   const fileUploadRef = useRef<HTMLInputElement>(null)
-  const { uploader } = props
+  const { uploader, selectedDataRows, fileDownload, fileRename, fileDelete, fileTransform } = props
   const [search] = useSearchParams()
   const { category } = useParams()
   const path = (search.get('path') ? search.get('path') : '/') as string
@@ -19,6 +20,7 @@ const FileManage: React.FC<PropsType> = (props) => {
   let [newFolderName, setNewFolderName] = useState('')
   let [dialogLoading, setDialogLoading] = useState(false)
   const dispatch = useStoreDispatch()
+  const loadingStatus = useStoreSelector(state => state.file.status)
 
   const uploadFile = () => {
     fileUploadRef.current?.click()
@@ -67,42 +69,77 @@ const FileManage: React.FC<PropsType> = (props) => {
 
   return (
     <div className='file-manage'>
-      <div className='upload-wrapper'>
-        <Button className='upload-button' icon={<UploadOutlined />} type='primary' shape='round' onClick={uploadFile}>上传</Button>
-        <input type="file" ref={fileUploadRef} onChange={onFileChange} multiple />
-      </div>
-      <div className='buttons' style={{display: category == 'all' ? 'flex' : 'none'}}>
-        <div className='button'>
-          <button onClick={createDir}><FolderAddOutlined className='icon' />新建文件夹</button>
+      {selectedDataRows.length < 1 ? (
+        <div className='file-uploader'>
+          <div className='upload-wrapper'>
+            <Button className='upload-button' icon={<UploadOutlined />} type='primary' shape='round' onClick={uploadFile} disabled={loadingStatus == 'loading'}>上传</Button>
+            <input type="file" ref={fileUploadRef} onChange={onFileChange} multiple />
+          </div>
+          <div className='buttons' style={{ display: category == 'all' ? 'flex' : 'none' }}>
+            <div className='button'>
+              <button onClick={createDir} disabled={loadingStatus == 'loading'}><FolderAddOutlined className='icon' />新建文件夹</button>
+            </div>
+            <div className='button'>
+              <button><FileAddOutlined className='icon' />新建文本文档</button>
+            </div>
+          </div>
+          <Modal
+            open={isModalOpen}
+            onCancel={createDirCancel}
+            onOk={createDirCheck}
+            title={<h4>文件夹名称</h4>}
+            okText='确定'
+            cancelText='取消'
+            wrapClassName='dialog-model'
+            width={360}
+            confirmLoading={dialogLoading}
+          >
+            <div className='dialog-body'>
+              <Image src={new URL('../../assets/icon/folder.png', import.meta.url).href} preview={false} width={58} />
+              <div className='input-wrapper'>
+                <Input value={newFolderName} onChange={onInputChange} maxLength={20} />
+              </div>
+            </div>
+          </Modal>
         </div>
-        <div className='button'>
-          <button><FileAddOutlined className='icon' />新建文本文档</button>
-        </div>
-      </div>
-      <Modal
-        open={isModalOpen}
-        onCancel={createDirCancel}
-        onOk={createDirCheck}
-        title={<h4>文件夹名称</h4>}
-        okText='确定'
-        cancelText='取消'
-        wrapClassName='dialog-model'
-        width={360}
-        confirmLoading={dialogLoading}
-      >
-        <div className='dialog-body'>
-          <Image src={new URL('../../assets/icon/folder.png', import.meta.url).href} preview={false} width={58} />
-          <div className='input-wrapper'>
-            <Input value={newFolderName} onChange={onInputChange} maxLength={20} />
+      ) : (
+        <div className='file-selection'>
+          <div className='buttons'>
+            <div className='button'>
+              <button><ShareAltOutlined className='icon' />分享</button>
+            </div>
+            <div className='button'>
+              <button><UsergroupAddOutlined className='icon' />共享</button>
+            </div>
+            <div className='button'>
+              <button onClick={() => fileDownload(selectedDataRows)}><DownloadOutlined className='icon' />下载</button>
+            </div>
+            <div className='button'>
+              <button onClick={() => fileDelete(selectedDataRows)}><DeleteOutlined className='icon' />删除</button>
+            </div>
+            <div className='button' style={{ display: selectedDataRows.length > 1 ? 'none' : 'block' }}>
+              <button onClick={() => fileRename(selectedDataRows[0])}><EditOutlined className='icon' />重命名</button>
+            </div>
+            <div className='button'>
+              <button onClick={() => fileTransform(selectedDataRows, 'move')}><DragOutlined className='icon' />移动</button>
+            </div>
+            <div className='button'>
+              <button onClick={() => fileTransform(selectedDataRows, 'copy')}><CopyOutlined className='icon' />复制</button>
+            </div>
           </div>
         </div>
-      </Modal>
+      )}
     </div>
   )
 }
 
 interface PropsType {
   uploader: any
+  selectedDataRows: FileInformation[]
+  fileDownload: (files: FileInformation[]) => void
+  fileDelete: (files: FileInformation[]) => void
+  fileRename: (file: FileInformation) => void
+  fileTransform: (files: FileInformation[], type: TransformType) => void
 }
 
 export default FileManage

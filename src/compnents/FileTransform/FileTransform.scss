@@ -1,0 +1,109 @@
+.file-transform {
+
+  .title {
+    font-weight: 700;
+  }
+
+  .ok-button {
+    font-size: 14px;
+    font-weight: 700;
+    padding: 5px 16px;
+    width: 90px;
+    height: 36px;
+    background-color: #06a7ff;
+    border-color: #06a7ff;
+  }
+
+  .cancel-button {
+    font-size: 14px;
+    font-weight: 700;
+    color: #06a7ff;
+    background-color: #f2faff;
+    border-color: #f2faff;
+    padding: 5px 28px;
+    width: 90px;
+    height: 36px;
+  }
+
+  .path {
+    display: flex;
+    align-items: center;
+    background-color: #fafafc;
+    height: 40px;
+    padding: 5px 20px;
+
+    h5 {
+      color: #afb3bf;
+    } 
+
+    .back {
+      color: #06a7ff;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .path-unit {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+
+      .sign {
+        margin: 0 8px;
+        color: #c4d8f4;
+        cursor: default;
+        transform: translateY(-2px);
+      }
+
+      .text {
+        display: inline-block;
+        color: #06a7ff;
+        cursor: pointer;
+        max-width: 90px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+
+  .list-item {
+    padding: 5px 24px;
+    cursor: pointer;
+
+    &:hover {
+      background-color: #f7f9fc;
+    }
+
+    .file-infomation {
+
+      .text {
+        height: 40px;
+        line-height: 40px;
+        padding-left: 12px;
+        display: inline-block;
+        vertical-align: middle;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 12px;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .ant-modal {
+    border-radius: 12px;
+    overflow: hidden;
+
+    .ant-modal-body {
+      padding: 0;
+      height: 350px;
+    }
+
+    .ant-list {
+      height: 300px;
+      overflow-y: scroll;
+    }
+  }
+}

@@ -9,3 +9,5 @@ export interface FileInformation {
   path: string//文件路径
   parentId: React.Key | null//父级id
 }
+
+export type TransformType = 'copy' | 'move' | null

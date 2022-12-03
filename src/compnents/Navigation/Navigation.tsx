@@ -190,7 +190,7 @@ const Navigation: React.FC<PropsType> = (props) => {
 
 interface PropsType {
   uploadList: any
-  setUploadList: Function
+  setUploadList: React.Dispatch<React.SetStateAction<any>>
 }
 
 export default Navigation
