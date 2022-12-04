@@ -32,7 +32,7 @@ const Home: React.FC = () => {
       return params
     }
   })
-  let [uploadList, setUploadList] = useState<any>([])//用于渲染的上传列表
+  const [uploadList, setUploadList] = useState<any>([])//用于渲染的上传列表
   const dispatch = useStoreDispatch()
 
   // 添加单个文件
@@ -136,10 +136,9 @@ const Home: React.FC = () => {
 
   const changeDisplay: MenuProps['onClick'] = (event) => {
     if (event.key == 'image') {
-      navigate('/home/timeline')
+      navigate('/home/timeline/picture')
     } else {
       navigate(`/home/directory/${event.key}`)
-      dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: event.key }))
     }
   }
 
@@ -156,14 +155,14 @@ const Home: React.FC = () => {
           icon: <FolderOpenOutlined />
         },
         {
-          key: 'document',
-          label: '文档',
-          icon: <FileOutlined />
-        },
-        {
           key: 'image',
           label: '图片',
           icon: <FileImageOutlined />
+        },
+        {
+          key: 'document',
+          label: '文档',
+          icon: <FileOutlined />
         },
         {
           key: 'audio',

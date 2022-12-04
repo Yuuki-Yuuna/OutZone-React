@@ -34,7 +34,7 @@ export default createBrowserRouter([
         element: <Directory />
       },
       {
-        path: 'timeline',
+        path: 'timeline/:category',
         element: <PictureWall />
       }
     ]

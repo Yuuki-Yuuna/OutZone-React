@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './Navigation.scss'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Image, Avatar, Space, Dropdown, Drawer, Progress, Menu, Badge } from 'antd'
 import { SwapOutlined, UserOutlined, BellOutlined, FolderOutlined, ArrowUpOutlined, PauseOutlined, CloseOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
@@ -9,9 +9,10 @@ import { checkFileType, computedFileSize } from '@/util/file'
 const Navigation: React.FC<PropsType> = (props) => {
   const navigate = useNavigate()
   const dropdownRef = useRef<HTMLSpanElement>(null)
-  let [drawerOpen, setDrawerOpen] = useState(false)
-  let [dropdownOpen, setDropdownOpen] = useState(false)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
   const { uploadList, setUploadList } = props
+  const [search, setSearch] = useSearchParams()
 
   const openDrawer = () => {
     setDrawerOpen(true)
@@ -39,6 +40,13 @@ const Navigation: React.FC<PropsType> = (props) => {
     return () => {
       file.cancel()
       setUploadList((preUploadList: any) => preUploadList.filter((item: any) => file.uniqueIdentifier != item.uniqueIdentifier))//要渲染
+    }
+  }
+  const uploadFileToPath = (file: any) => {
+    return () => {
+      const filePath = file.relativePath == '/' ? '/' : file.relativePath.slice(0, file.relativePath.length-1)
+      search.set('path', filePath)
+      setSearch(search)
     }
   }
 
@@ -76,14 +84,14 @@ const Navigation: React.FC<PropsType> = (props) => {
                     />
                     <div className='status'>
                       <div className='size'>{computedFileSize(file.size)}</div>
-                      {file.isReady ? <div className='speed'>{file.progress() == 1 ? '' : computedFileSize(file.currentSpeed) + '/s'}</div> : <div className='waiting'>等待中</div> }
+                      {file.isReady ? <div className='speed'>{file.progress() == 1 ? '' : computedFileSize(file.currentSpeed) + '/s'}</div> : <div className='waiting'>等待中</div>}
                     </div>
                   </div>
                 </div>
                 <div className='buttons'>
-                  {file.isComplete() ? <div className='button'><FolderOutlined className='icon' /></div> : (
+                  {file.isComplete() ? <div className='button' onClick={uploadFileToPath(file)}><FolderOutlined className='icon' /></div> : (
                     <Space>
-                      {file.isUploading() ? <div className='button' onClick={uploadFilePause(file)}><PauseOutlined className='icon' /></div> : <div className='button' onClick={uploadFileResume(file)} style={{display: file.isReady ? 'flex' : 'none'}}><ArrowUpOutlined className='icon' /></div>}
+                      {file.isUploading() ? <div className='button' onClick={uploadFilePause(file)}><PauseOutlined className='icon' /></div> : <div className='button' onClick={uploadFileResume(file)} style={{ display: file.isReady ? 'flex' : 'none' }}><ArrowUpOutlined className='icon' /></div>}
                       <div className='button'><CloseOutlined className='icon' onClick={uploadFileCancel(file)} /></div>
                     </Space>
                   )}

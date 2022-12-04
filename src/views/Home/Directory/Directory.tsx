@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react'
 import './Directory.scss'
 import FileManage from '@/compnents/FileManage/FileManage'
 import FileTransform from '@/compnents/FileTransform/FileTransform'
-import { Table, Image, Dropdown, Input, message, Button } from 'antd'
+import { Table, Image, Dropdown, Input, message, Button, List } from 'antd'
 import { ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined, LoadingOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
@@ -11,29 +11,31 @@ import { useStoreSelector, useStoreDispatch } from '@/store'
 import { getFileList } from '@/store/features/fileSlice'
 import { computedFileSize } from '@/util/file'
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom'
-import { deleteFiles, downloadFile, renameDirectory, renameFile } from '@/api/file'
+import { deleteFiles, downloadFile, getNowFileList, renameDirectory, renameFile } from '@/api/file'
 
 const Directory: React.FC = () => {
-  let [fold, setFold] = useState(false)//折叠开关
+  const [fold, setFold] = useState(false)//折叠开关
   const rightMenu = useRef<HTMLDivElement>(null)//自定义右键菜单
   let operationType: OperationType = null
-  let [selectedDataKeys, setSelectedDataKeys] = useState<React.Key[]>([])//表格选中项key值
-  let [selectedDataRows, setSelectedDataRows] = useState<FileInformation[]>([])//当前选中项数组
+  const [selectedDataKeys, setSelectedDataKeys] = useState<React.Key[]>([])//表格选中项key值
+  const [selectedDataRows, setSelectedDataRows] = useState<FileInformation[]>([])//当前选中项数组
+  const [folderPreviewList, setFolderPreviewList] = useState<FileInformation[]>([])
+  const [folderPreviewLoading, setFolderPreviewLoading] = useState(false)
   const fileList = useStoreSelector(state => state.file.fileList)
   const loadingStatus = useStoreSelector(state => state.file.status)
-  let [isLoading, setIsloading] = useState(false)//加载状态由isLoading和loadingStatus共同组成
+  const [isLoading, setIsloading] = useState(false)//加载状态由isLoading和loadingStatus共同组成
   const dispatch = useStoreDispatch()
   const [search, setSearch] = useSearchParams()
   const { category } = useParams()
   const path = (search.get('path') ? search.get('path') : '/') as string
   const uploadPath = path == '/' || category != 'all' ? '/' : path + '/'//上传路径有'/'
   const { groupId, uploader } = useOutletContext<ContextType>()
-  let [editingData, setEditingData] = useState<FileInformation | null>(null)//处于编辑状态的数据
-  let [editingName, setEditingName] = useState('')
-  let [firstEdit, setFirstEdit] = useState(true)//是否第一次编辑
-  let [transformOpen, setTransformOpen] = useState(false)//移动复制对话框
-  let [transformType, setTransformType] = useState<TransformType>(null)
-  let [transformFiles, setTransformFiles] = useState<FileInformation[]>([])
+  const [editingData, setEditingData] = useState<FileInformation | null>(null)//处于编辑状态的数据
+  const [editingName, setEditingName] = useState('')
+  const [firstEdit, setFirstEdit] = useState(true)//是否第一次编辑
+  const [transformOpen, setTransformOpen] = useState(false)//移动复制对话框
+  const [transformType, setTransformType] = useState<TransformType>(null)
+  const [transformFiles, setTransformFiles] = useState<FileInformation[]>([])
 
   const pathBack = () => {
     let pathUnits = path.split('/')
@@ -86,6 +88,7 @@ const Directory: React.FC = () => {
           const a = document.createElement('a')
           a.href = res.data.data
           a.click()
+          message.success('已添加下载~')
         } else {
           message.error(result.msg)
         }
@@ -110,6 +113,7 @@ const Directory: React.FC = () => {
       setIsloading(false)
     }).catch(err => {
       console.log(err)
+      setIsloading(false)
     })
   }
   const fileRename = (file: FileInformation) => {
@@ -192,7 +196,26 @@ const Directory: React.FC = () => {
     setSelectedDataKeys([])
     setSelectedDataRows([])
     setEditingData(null)
-  }, [path])
+  }, [path, category])
+
+  useEffect(() => {
+    if (selectedDataRows.length == 1 && selectedDataRows[0].directoryType) {
+      setFolderPreviewLoading(true)
+      const folder = selectedDataRows[0]
+      getNowFileList({ groupId, absolutePath: folder.path }).then(res => {
+        const result = res.data
+        if (result.code == 200) {
+          setFolderPreviewList(result.data)
+        } else {
+          message.error('文件夹预览失败: ' + result.msg)
+        }
+        setFolderPreviewLoading(false)
+      }).catch(err => {
+        console.log(err)
+        setFolderPreviewLoading(false)
+      })
+    }
+  }, [selectedDataRows])
 
   const dropdownItems: MenuProps['items'] = [
     {
@@ -214,7 +237,7 @@ const Directory: React.FC = () => {
       )
     },
     {
-      key: 'share',
+      key: 'group',
       label: (
         <div onClick={changeOperation('group')}>
           <UsergroupAddOutlined />
@@ -332,10 +355,21 @@ const Directory: React.FC = () => {
     }
   ]
 
+  const folderPreviewItemRender = (item: FileInformation) => {
+    return (
+      <div className='list-item'>
+        <div className='file-infomation'>
+          <Image src={item.icon} preview={false} width={32} style={{ height: '32px', borderRadius: '6px', objectFit: 'cover' }} />
+          <span className='text'>{item.directoryType ? item.name.slice(1, item.name.length - 1) : item.name}</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className='directory'>
       <div className='content'>
-        <FileManage {...{uploader, selectedDataRows, fileDownload, fileDelete, fileRename, fileTransform}} />
+        <FileManage {...{ uploader, selectedDataRows, fileDownload, fileDelete, fileRename, fileTransform }} />
         <div className='title'>
           {path == '/' ? <h4>{'全部文件'}</h4> : (
             <div className='path'>
@@ -424,28 +458,44 @@ const Directory: React.FC = () => {
           <Input.Search placeholder="搜索我的文件" onSearch={fileSearch} />
         </div>
         <div className='title'>
-          <h4 style={{ display: selectedDataKeys.length > 1 ? 'block' : 'none' }}>{`共选中${selectedDataKeys.length}个文件`}</h4>
-          <h4 style={{ display: selectedDataKeys.length <= 1 ? 'block' : 'none' }}>文件详情</h4>
+          {selectedDataKeys.length > 1 ? <h4>{`共选中${selectedDataKeys.length}个文件`}</h4> : <h4>{selectedDataRows[0]?.directoryType ? '文件夹内容' : '文件详情'}</h4>}
           <span onClick={() => setFold(true)}><RightOutlined className='icon' />收起</span>
         </div>
         <div className='detail-wrapper'>
-          <div className='empty' style={{ display: selectedDataKeys.length ? 'none' : 'block' }}>
-            <Image src={new URL('../../../assets/img/empty.png', import.meta.url).href} preview={false}></Image>
-            <p>选中文件/文件夹，查看详情</p>
-          </div>
-          <div className='detail' style={{ display: selectedDataKeys.length ? 'block' : 'none' }}>
-            <div className='image-box'>
-              <Image src={selectedDataKeys.length == 1 ? selectedDataRows[0].icon : new URL('../../../assets/icon/folder.png', import.meta.url).href} preview={false} style={{ borderRadius: '9.5px' }} />
+          {selectedDataKeys.length == 0 ? (
+            <div className='empty'>
+              <Image src={new URL('../../../assets/img/empty.png', import.meta.url).href} preview={false}></Image>
+              <p>选中文件/文件夹，查看详情</p>
             </div>
-            <div className='information' style={{ display: selectedDataKeys.length == 1 ? 'block' : 'none' }}>
-              <h4>{selectedDataRows[0]?.directoryType ? selectedDataRows[0]?.name.slice(1, selectedDataRows[0].name.length - 1) : selectedDataRows[0]?.name}</h4>
-              <ul>
-                <li>创建时间：{selectedDataRows[0]?.uploadDate}</li>
-                <li>文件大小：{computedFileSize(selectedDataRows[0]?.size)}</li>
-                <li>所在目录：{selectedDataRows[0]?.path == '/' ? selectedDataRows[0]?.path : selectedDataRows[0]?.path.slice(0, selectedDataRows[0].path.length - 1)}</li>
-              </ul>
+          ) : (selectedDataKeys.length == 1 && selectedDataRows[0].directoryType ? (
+            <div className='folder-preview'>
+              <div className='preview-title'>
+                <Image src={selectedDataRows[0].icon} preview={false} width={32} />
+                <span className='text'>{selectedDataRows[0].name.slice(1, selectedDataRows[0].name.length - 1)}</span>
+              </div>
+              <List
+                style={{ height: 500, overflowY: 'scroll' }}
+                dataSource={folderPreviewList}
+                renderItem={folderPreviewItemRender}
+                loading={{ indicator: <LoadingOutlined />, spinning: folderPreviewLoading, size: 'large' }}
+              />
             </div>
-          </div>
+          ) : (
+            <div className='detail'>
+              <div className='image-box'>
+                <Image src={selectedDataKeys.length == 1 ? selectedDataRows[0].icon : new URL('../../../assets/icon/folder.png', import.meta.url).href} preview={false} style={{ borderRadius: '9.5px' }} />
+              </div>
+              <div className='information' style={{ display: selectedDataKeys.length == 1 ? 'block' : 'none' }}>
+                <h4>{selectedDataRows[0].directoryType ? selectedDataRows[0].name.slice(1, selectedDataRows[0].name.length - 1) : selectedDataRows[0].name}</h4>
+                <ul>
+                  <li>创建时间：{selectedDataRows[0].uploadDate}</li>
+                  <li>文件大小：{computedFileSize(selectedDataRows[0].size)}</li>
+                  <li>所在目录：{selectedDataRows[0].path == '/' ? selectedDataRows[0].path : selectedDataRows[0].path.slice(0, selectedDataRows[0].path.length - 1)}</li>
+                </ul>
+              </div>
+            </div>
+          )
+          )}
         </div>
       </div>
     </div>

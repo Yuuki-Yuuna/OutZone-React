@@ -83,7 +83,7 @@ const FileTransform: React.FC<PropsType> = (props) => {
     })
   }, [transformPath])
 
-  const itemRender = (item: FileInformation, index: number) => {
+  const itemRender = (item: FileInformation) => {
     return (
       <div className='list-item' onClick={folderEnter(item)}>
         <div className='file-infomation'>

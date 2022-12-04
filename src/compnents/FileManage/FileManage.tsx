@@ -16,9 +16,9 @@ const FileManage: React.FC<PropsType> = (props) => {
   const path = (search.get('path') ? search.get('path') : '/') as string
   const uploadPath = path == '/' || category != 'all' ? '/' : path + '/'
   const groupId = -1
-  let [isModalOpen, setIsModalOpen] = useState(false)//新建文件夹对话框
-  let [newFolderName, setNewFolderName] = useState('')
-  let [dialogLoading, setDialogLoading] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)//新建文件夹对话框
+  const [newFolderName, setNewFolderName] = useState('')
+  const [dialogLoading, setDialogLoading] = useState(false)
   const dispatch = useStoreDispatch()
   const loadingStatus = useStoreSelector(state => state.file.status)
 

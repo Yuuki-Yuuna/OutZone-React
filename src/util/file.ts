@@ -12,10 +12,12 @@ export const checkFileType = (filename: string) => {
   const extname = slice[slice.length - 1]//扩展名
   const createFilter = (name: string) => (item: string) => item == name
   // console.log(extname)
-  if (document.some(createFilter(extname)) || audio.some(createFilter(extname)) || mobile.some(createFilter(extname))) {
+  if (document.some(createFilter(extname)) || mobile.some(createFilter(extname))) {
     return extname
   } else if (image.some(createFilter(extname))) {
     return 'image'
+  } else if (audio.some(createFilter(extname))) {
+    return 'audio'
   } else if (video.some(createFilter(extname))) {
     return 'video'
   } else if (compression.some(createFilter(extname))) {

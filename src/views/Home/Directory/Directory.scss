@@ -285,6 +285,45 @@
         }
       }
 
+      .folder-preview {
+
+        .preview-title {
+          padding: 0 24px 8px 24px;
+          border-bottom: 1px solid #f1f2f4;
+
+          .text {
+            display: inline-block;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            font-size: 14px;
+            font-weight: 700;
+            vertical-align: middle;
+            padding-left: 12px;
+          }
+        }
+
+        .list-item {
+
+          .file-infomation {
+            padding: 5px 24px;
+
+            .text {
+              height: 40px;
+              line-height: 40px;
+              padding-left: 12px;
+              display: inline-block;
+              vertical-align: middle;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              font-size: 12px;
+              font-weight: 500;
+            }
+          }
+        }
+      }
+
       .detail {
 
         .image-box {
