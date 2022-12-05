@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import fileReducer from './features/fileSlice'
+import userReducer from './features/userSlice'
 import { TypedUseSelectorHook, useSelector, useDispatch } from 'react-redux'
 
 const store = configureStore({
   reducer: {
-    file: fileReducer
+    file: fileReducer,
+    user: userReducer
   }
 })
 

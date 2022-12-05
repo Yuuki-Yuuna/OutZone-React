@@ -8,6 +8,9 @@ export const getToken = () => {
   if(!token) {
     const localToken = localStorage.getItem('token')
     token = localToken ? cryptoJs.AES.decrypt(localToken, secretKey).toString(cryptoJs.enc.Utf8) : null
+    if(token) {
+      sessionStorage.setItem('token', token)
+    } 
   }
   return token
 }
@@ -15,4 +18,9 @@ export const getToken = () => {
 export const setToken = (token: string) => {
   sessionStorage.setItem('token', token)
   localStorage.setItem('token', cryptoJs.AES.encrypt(token, secretKey).toString())
+}
+
+export const removeToken = () => {
+  sessionStorage.removeItem('token')
+  localStorage.removeItem('token')
 }

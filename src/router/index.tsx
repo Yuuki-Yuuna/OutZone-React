@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import RouteBefore from './guard/RouteBefore'
 
 const Login = lazy(() => import('@/views/Login/Login'))
+const Register = lazy(() => import('@/views/Register/Register'))
 const Home = lazy(() => import('@/views/Home/Home'))
 const Directory = lazy(() => import('@/views/Home/Directory/Directory'))
 const PictureWall = lazy(() => import('@/views/Home/PictureWall/PictureWall'))
@@ -16,6 +17,10 @@ export default createBrowserRouter([
   {
     path: '/login',
     element: <Login />
+  },
+  {
+    path: '/register',
+    element: <Register />
   },
   {
     path: '/home',

@@ -1,10 +1,14 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './Navigation.scss'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Image, Avatar, Space, Dropdown, Drawer, Progress, Menu, Badge } from 'antd'
+import { Image, Avatar, Space, Dropdown, Drawer, Progress, Menu, Badge, message } from 'antd'
 import { SwapOutlined, UserOutlined, BellOutlined, FolderOutlined, ArrowUpOutlined, PauseOutlined, CloseOutlined } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { checkFileType, computedFileSize } from '@/util/file'
+import { useStoreDispatch, useStoreSelector } from '@/store'
+import { getUserInformation } from '@/store/features/userSlice'
+import { userLogout } from '@/api/user'
+import { removeToken } from '@/util/secret'
 
 const Navigation: React.FC<PropsType> = (props) => {
   const navigate = useNavigate()
@@ -13,6 +17,9 @@ const Navigation: React.FC<PropsType> = (props) => {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const { uploadList, setUploadList } = props
   const [search, setSearch] = useSearchParams()
+  const dispatch = useStoreDispatch()
+  const userInfo = useStoreSelector(state => state.user.userInfo)
+  const userStatus = useStoreSelector(state => state.user.status)
 
   const openDrawer = () => {
     setDrawerOpen(true)
@@ -44,11 +51,36 @@ const Navigation: React.FC<PropsType> = (props) => {
   }
   const uploadFileToPath = (file: any) => {
     return () => {
-      const filePath = file.relativePath == '/' ? '/' : file.relativePath.slice(0, file.relativePath.length-1)
+      const filePath = file.relativePath == '/' ? '/' : file.relativePath.slice(0, file.relativePath.length - 1)
       search.set('path', filePath)
       setSearch(search)
     }
   }
+  const logout = () => {
+    userLogout().then(res => {
+      const result = res.data
+      if (result.code == 200) {
+        removeToken()
+        message.success('退出登录~')
+        navigate('/login', { replace: true })
+      } else {
+        message.error(result.msg)
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+  }
+
+  useEffect(() => {
+    dispatch(getUserInformation())
+  }, [])
+
+  useEffect(() => {
+    if (userStatus == 'overdue') {
+      message.error('登录过期,请重新登录')
+      navigate('/login', { replace: true })
+    }
+  }, [userStatus])
 
   useEffect(() => {
     if (uploadList.length) {
@@ -115,7 +147,7 @@ const Navigation: React.FC<PropsType> = (props) => {
     },
     {
       key: 'logout',
-      label: '退出登录'
+      label: <div onClick={logout}>退出登录</div>
     }
   ]
   const menuItems: MenuProps['items'] = [
@@ -147,9 +179,9 @@ const Navigation: React.FC<PropsType> = (props) => {
       </div>
       <div className='flex-grow'></div>
       <div className='profile'>
-        <Avatar icon={<UserOutlined />} src={'/src/assets/avatar.jpg'} size={42} />
+        <Avatar icon={<UserOutlined />} src={userInfo?.icon} size={42} />
         <Dropdown menu={{ items: dropdownItems }} placement='bottom' arrow>
-          <h2>{'admin'}</h2>
+          <h2>{userInfo?.username}</h2>
         </Dropdown>
         <div className='tools'>
           <Space>

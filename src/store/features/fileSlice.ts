@@ -21,7 +21,7 @@ const fileSlice = createSlice({
   reducers: {
     setFileList(state, action: PayloadAction<FileInformation[]>) {
       state.fileList = action.payload
-      console.log('状态改了吗:', state.status)
+      // console.log('状态改了吗:', state.status)
     }
   },
   extraReducers(builder) {
