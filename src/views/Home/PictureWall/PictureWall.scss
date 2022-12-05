@@ -30,44 +30,59 @@
         display: flex;
         flex-wrap: wrap;
         padding: 4px;
-
-        .picture {
-          position: relative;
-          padding: 2.5px;
-
-          &:hover {
-
-            .check-box {
-              display: flex;
-            }
-
-            .more {
-              display: block;
-            }
-          }
-
-          .more {
-            display: none;
-            position: absolute;
-            top: 14px;
-            right: 16px;
-            z-index: 1;
-            font-size: 14px;
-            scale: 2.5;
-            color: #fff;
-
-            &:hover {
-              color: #06a7ff;
-            }
-          }
-        }
       }
     }
   }
 
-  // .picture-display {
+  .picture {
+    position: relative;
+    padding: 2.5px;
 
-  // }
+    &:hover {
+
+      .check-box {
+        display: flex;
+      }
+
+      .more {
+        display: block;
+      }
+    }
+
+    .more {
+      display: none;
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      z-index: 1;
+      font-size: 14px;
+      scale: 2.5;
+      color: #fff;
+
+      &:hover {
+        color: #06a7ff;
+      }
+    }
+  }
+
+  .recently-upload {
+
+    .all-checked {
+      display: flex;
+      align-items: center;
+      height: 28px;
+      padding-bottom: 4px;
+
+      .text {
+        padding-left: 8px;
+      }
+    }
+
+    .picture-display {
+      display: flex;
+      flex-wrap: wrap;
+    }
+  }
 
   .picture-manage {
     display: flex;

@@ -252,8 +252,26 @@ const PictureWall: React.FC = () => {
               label: '最近上传',
               key: '2',
               children: (
-                <div className='picture-display'>
-                  Content of Tab Pane 2
+                <div className='recently-upload'>
+                  <div className='all-checked'>
+                    <Checkbox checked={selectedKeys.length == fileList.length} onChange={onSelectedChange(fileList)} />
+                    <span className='text'>全选</span>
+                  </div>
+                  <div className='picture-display'>
+                    {pictureList.map(pictures => pictures.map(picture => {
+                      const pictureIsChekced = selectedKeys.includes(picture.id)
+
+                      return (
+                        <div className='picture' key={picture.id}>
+                          <Checkbox className='check-box' checked={pictureIsChekced} onChange={onSelectedChange([picture])} style={{ display: pictureIsChekced ? 'flex' : '' }} />
+                          <Dropdown menu={{ items: dropdownItems }} placement='bottom' onOpenChange={onDropdownOpenChange(picture)}>
+                            <EllipsisOutlined className='more' />
+                          </Dropdown>
+                          <Image src={picture.icon} width={128} height={128} style={{ objectFit: 'cover' }} />
+                        </div>
+                      )
+                    }))}
+                  </div>
                 </div>
               )
             }

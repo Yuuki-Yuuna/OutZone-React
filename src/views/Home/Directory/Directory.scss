@@ -3,7 +3,7 @@
   height: 100%;
 
   .content {
-    min-width: 500px;
+    min-width: 580px;
     height: 100%;
 
     .title {
@@ -194,7 +194,8 @@
   }
 
   .preview {
-    width: 360px;
+    max-width: 320px;
+    min-width: 300px;
     border-left: 1px solid #f0f0f0;
 
     .search-wrapper {
@@ -307,8 +308,10 @@
 
           .file-infomation {
             padding: 5px 24px;
+            white-space: nowrap;
 
             .text {
+              width: 240px;
               height: 40px;
               line-height: 40px;
               padding-left: 12px;
