@@ -1,5 +1,5 @@
 import request from '@/util/request'
-import type { LoginUser, UserInformation } from '@/type/User'
+import type { LoginUser, RegisterUser, UserInformation } from '@/type/User'
 
 export const userLogin = (params: LoginUser) => {
   return request.post<UserLoginData>('/user/login', params)
@@ -12,6 +12,10 @@ export const userLogout = () => {
 //发送验证码到邮箱
 export const getRegisterCode = (params: GetRegisterCodeParams) => {
   return request.post<ResponseData>('/user/registerCode', params)
+}
+
+export const userRegister = (params: RegisterUser) => {
+  return request.post<ResponseData>('/user/register', params)
 }
 
 export const getUserInfo = () => {

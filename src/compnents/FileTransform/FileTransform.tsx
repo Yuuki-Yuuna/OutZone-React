@@ -71,6 +71,7 @@ const FileTransform: React.FC<PropsType> = (props) => {
     setTransformLoading(true)
     getNowFileList({ groupId, absolutePath: uploadPath }).then(res => {
       const result = res.data
+      console.log(result)
       if (result.code == 200) {
         setFolderList(result.data.filter(item => item.directoryType))
       } else {
@@ -81,7 +82,7 @@ const FileTransform: React.FC<PropsType> = (props) => {
       console.log(err)
       setTransformLoading(false)
     })
-  }, [transformPath])
+  }, [transformPath, transformOpen])
 
   const itemRender = (item: FileInformation) => {
     return (

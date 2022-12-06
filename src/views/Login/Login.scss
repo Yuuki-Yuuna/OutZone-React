@@ -53,6 +53,11 @@
       .title {
         font-style: italic;
         color: #434343;
+        padding-bottom: 10px;
+      }
+
+      .input {
+        width: 160px;
       }
 
       .button {
@@ -82,6 +87,19 @@
         right: 10px;
         bottom: 10px;
         font-size: 12px;
+      }
+    }
+  }
+
+  .ant-form-item {
+    height: 32px;
+
+    .ant-form-item-row {
+      flex-wrap: nowrap;
+
+      .ant-form-item-label {
+        width: 60px;
+        flex: 0 0 60px !important;
       }
     }
   }
@@ -116,7 +134,7 @@
       border: none;
     }
   }
-  
+
   .ant-input-affix-wrapper-status-error:not(.ant-input-affix-wrapper-disabled):not(.ant-input-affix-wrapper-borderless).ant-input-affix-wrapper,
   .ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input {
     border: none;

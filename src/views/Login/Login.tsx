@@ -57,7 +57,7 @@ const Login: React.FC = () => {
                   },
                 ]}
               >
-                <Input maxLength={16} />
+                <Input className='input' maxLength={16} />
               </Form.Item>
               <Form.Item
                 label="密码"
@@ -73,7 +73,7 @@ const Login: React.FC = () => {
                   },
                 ]}
               >
-                <Input.Password maxLength={20} />
+                <Input.Password className='input' maxLength={20} />
               </Form.Item>
               <Form.Item className='flex-center'>
                 <Button className='button' type="primary" htmlType="submit" shape='round'>登录</Button>
