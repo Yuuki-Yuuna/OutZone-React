@@ -1,5 +1,5 @@
 import request from '@/util/request'
-import type { LoginUser, RegisterUser, UserInformation } from '@/type/User'
+import type { CloudStorage, LoginUser, RegisterUser, UserInformation } from '@/type/User'
 
 export const userLogin = (params: LoginUser) => {
   return request.post<UserLoginData>('/user/login', params)
@@ -22,6 +22,11 @@ export const getUserInfo = () => {
   return request.get<GetUserInfoData>('/user/getUserInfo')
 }
 
+//获取已使用储存空间
+export const getCapacity = () => {
+  return request.get<GetCapacityData>('/user/getCapacity')
+}
+
 export interface GetRegisterCodeParams {
   username: string
   mailAddress: string
@@ -35,6 +40,10 @@ export interface UserLoginData extends ResponseData {
 
 export interface GetUserInfoData extends ResponseData {
   data: UserInformation
+}
+
+export interface GetCapacityData extends ResponseData {
+  data: CloudStorage
 }
 
 interface ResponseData {

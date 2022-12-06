@@ -8,10 +8,10 @@ import type { MenuProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { FileInformation, TransformType } from '@/type/File'
 import { useStoreSelector, useStoreDispatch } from '@/store'
-import { getFileList } from '@/store/features/fileSlice'
+import { getFileList, setFileList } from '@/store/features/fileSlice'
 import { computedFileSize } from '@/util/file'
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom'
-import { deleteFiles, downloadFile, getNowFileList, renameDirectory, renameFile } from '@/api/file'
+import { deleteFiles, downloadFile, getNowFileList, renameDirectory, renameFile, searchFiles } from '@/api/file'
 
 const Directory: React.FC = () => {
   const [fold, setFold] = useState(false)//折叠开关
@@ -27,6 +27,7 @@ const Directory: React.FC = () => {
   const dispatch = useStoreDispatch()
   const [search, setSearch] = useSearchParams()
   const { category } = useParams()
+  const query = search.get('query')
   const path = (search.get('path') ? search.get('path') : '/') as string
   const uploadPath = path == '/' || category != 'all' ? '/' : path + '/'//上传路径有'/'
   const { groupId, uploader } = useOutletContext<ContextType>()
@@ -37,6 +38,11 @@ const Directory: React.FC = () => {
   const [transformType, setTransformType] = useState<TransformType>(null)
   const [transformFiles, setTransformFiles] = useState<FileInformation[]>([])
 
+  const setPath = (newPath: string) => {
+    search.set('path', newPath)
+    search.delete('query')
+    setSearch(search)
+  }
   const pathBack = () => {
     let pathUnits = path.split('/')
     pathUnits = pathUnits.slice(1, pathUnits.length - 1)
@@ -44,14 +50,11 @@ const Directory: React.FC = () => {
     pathUnits.forEach((item) => {
       newPath += '/' + item
     })
-    search.set('path', newPath)
-    setSearch(search)
-    setSelectedDataKeys([])
+    setPath(newPath)
   }
   const pathTo = (newPath: string) => {
     return () => {
-      search.set('path', newPath)
-      setSearch(search)
+      setPath(newPath)
       setSelectedDataKeys([])
     }
   }
@@ -64,8 +67,7 @@ const Directory: React.FC = () => {
       event.stopPropagation()//阻止冒泡
       if (file.directoryType) {
         const newPath = file.path.slice(0, file.path.length - 1)
-        search.set('path', newPath)
-        setSearch(search)
+        setPath(newPath)
       }
     }
   }
@@ -104,7 +106,7 @@ const Directory: React.FC = () => {
       // console.log(res.data)
       if (res.data.code == 200) {
         message.success('删除成功')
-        dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: category }))
+        refresh()
       } else {
         message.error(res.data.msg)
       }
@@ -136,13 +138,27 @@ const Directory: React.FC = () => {
     if (selectedDataRows[0]?.directoryType) {
       let newPath = selectedDataRows[0].path
       newPath = selectedDataRows[0].directoryType ? newPath.slice(0, newPath.length - 1) : newPath
-      console.log(newPath)
-      search.set('path', newPath)
-      setSearch(search)
+      // console.log(newPath)
+      setPath(newPath)
     }
   }
-  const fileSearch = () => {
-
+  const fileSearch = (value: string) => {
+    setSearch(`?query=${value}`)
+  }
+  const getSearchFiles = () => {
+    setIsloading(true)
+    searchFiles({ groupId, fileName: query ? query : '' }).then(res => {
+      const result = res.data
+      if (result.code == 200) {
+        dispatch(setFileList(result.data))
+      } else {
+        message.error(result.msg)
+      }
+      setIsloading(false)
+    }).catch(err => {
+      console.log(err)
+      setIsloading(false)
+    })
   }
   const fileRenameCheck = async (event: React.MouseEvent) => {
     event.stopPropagation()
@@ -154,7 +170,7 @@ const Directory: React.FC = () => {
         const result = res.data
         if (result.code == 200) {
           message.success('重命名成功~')
-          dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: category }))
+          refresh()
         } else {
           message.error(result.msg)
         }
@@ -190,13 +206,21 @@ const Directory: React.FC = () => {
     const input = event.target as HTMLInputElement
     setEditingName(input.value)
   }
+  //刷新
+  const refresh = () => {
+    if (query) {
+      getSearchFiles()
+    } else {
+      dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: category }))
+    }
+  }
 
   useEffect(() => {
-    dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: category }))
+    refresh()
     setSelectedDataKeys([])
     setSelectedDataRows([])
     setEditingData(null)
-  }, [path, category])
+  }, [search, category])
 
   useEffect(() => {
     if (selectedDataRows.length == 1 && selectedDataRows[0].directoryType) {
@@ -290,8 +314,7 @@ const Directory: React.FC = () => {
       },
       //双击行
       onDoubleClick: () => {
-        search.set('path', record.path.slice(0, record.path.length - 1))
-        setSearch(search)
+        setPath(record.path.slice(0, record.path.length - 1))
       },
     }
   }
@@ -371,7 +394,7 @@ const Directory: React.FC = () => {
       <div className='content'>
         <FileManage {...{ uploader, selectedDataRows, fileDownload, fileDelete, fileRename, fileTransform }} />
         <div className='title'>
-          {path == '/' ? <h4>{'全部文件'}</h4> : (
+          {path == '/' ? <h4>{query ? '搜索: ' + query : '全部文件'}</h4> : (
             <div className='path'>
               <div className='back' onClick={pathBack}>返回上一级</div>
               <div className='path-unit'>

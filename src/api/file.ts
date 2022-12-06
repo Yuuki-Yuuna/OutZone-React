@@ -23,7 +23,7 @@ export const uploadFileMerge = (params: UploadFileMergeParams) => {
       formData.append(key, value)
     }
   }
-  return request.post<UploadFileMergeData>('/file/merge', formData)
+  return request.post<ResponseData>('/file/merge', formData)
 }
 
 export const downloadFile = (params: DownloadFileParams) => {
@@ -52,6 +52,10 @@ export const moveFiles = (params: ContorlFilesParams) => {
 
 export const copyFiles = (params: ContorlFilesParams) => {
   return request.post<ResponseData>('/file/copyFiles', params)
+}
+
+export const searchFiles = (params: SearchFilesParams) => {
+  return request.get<GetNowFileListData>('/file/searchFiles', { params })
 }
 
 export interface GetNowFileListParams {
@@ -101,15 +105,16 @@ export interface RenameFileParams {
   newName: string
 }
 
+export interface SearchFilesParams {
+  groupId: number
+  fileName: string
+}
+
 export interface UploadPreCheckData extends ResponseData {
   data: {
     isSkip: boolean,
     needMerge: boolean
   }
-}
-
-export interface UploadFileMergeData extends ResponseData {
-  data: any
 }
 
 export interface GetNowFileListData extends ResponseData {

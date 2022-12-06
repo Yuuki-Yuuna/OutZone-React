@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react'
+import React, { Suspense, useEffect, useState } from 'react'
 import './Home.scss'
 import Navigation from '@/compnents/Navigation/Navigation'
 import { Outlet, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -8,10 +8,12 @@ import type { MenuProps } from 'antd'
 import Uploader from 'simple-uploader.js'//这个没有ts包，采用AnyScript编写
 import { baseURL } from '@/util/request'
 import { getToken } from '@/util/secret'
-import { checkFileCategory, computedMd5, getThumbnail, getVideoThumbnail } from '@/util/file'
+import { checkFileCategory, computedFileSize, computedMd5, getThumbnail, getVideoThumbnail } from '@/util/file'
 import { uploadFileMerge, UploadFileMergeParams, uploadPreCheck } from '@/api/file'
-import { useStoreDispatch } from '@/store'
+import { useStoreDispatch, useStoreSelector } from '@/store'
 import { getFileList } from '@/store/features/fileSlice'
+import type { CloudStorage } from '@/type/User'
+import { getCapacity } from '@/api/user'
 
 const Home: React.FC = () => {
   const navigate = useNavigate()
@@ -34,6 +36,9 @@ const Home: React.FC = () => {
   })
   const [uploadList, setUploadList] = useState<any>([])//用于渲染的上传列表
   const dispatch = useStoreDispatch()
+  const fileList = useStoreSelector(state => state.file.fileList)
+  const userInfo = useStoreSelector(state => state.user.userInfo)
+  const [cloudStorage, setCloudStorage] = useState<CloudStorage | null>(null)
 
   // 添加单个文件
   uploader.on('fileAdded', (uploadFile: any) => {
@@ -141,6 +146,27 @@ const Home: React.FC = () => {
       navigate(`/home/directory/${event.key}`)
     }
   }
+  const computedProgress = (storage: CloudStorage | null) => {
+    if (storage) {
+      const progress = storage.used / storage.total * 100
+      return progress && progress < 1 ? 1 : progress
+    } else {
+      return 0
+    }
+  }
+
+  useEffect(() => {
+    getCapacity().then(res => {
+      const result = res.data
+      if (result.code == 200) {
+        setCloudStorage(result.data)
+      } else {
+        message.error(result.msg)
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+  }, [userInfo, fileList])
 
   const items: MenuProps['items'] = [
     {
@@ -201,8 +227,8 @@ const Home: React.FC = () => {
             onClick={changeDisplay}
           />
           <div className='progress'>
-            <Progress percent={18} showInfo={false} strokeColor='#06a7ff' />
-            <div className='info'>379.2G/2055G</div>
+            <Progress percent={computedProgress(cloudStorage)} showInfo={false} strokeColor='#06a7ff' />
+            <div className='info'>{computedFileSize(cloudStorage?.used) + '/' + computedFileSize(cloudStorage?.total)}</div>
           </div>
         </div>
         <div className='content'>

@@ -15,3 +15,8 @@ export interface UserInformation {
   icon: string
   registerTime: string
 }
+
+export interface CloudStorage {
+  used: number
+  total: number
+}
