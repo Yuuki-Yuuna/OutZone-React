@@ -10,7 +10,7 @@ import type { FileInformation, TransformType } from '@/type/File'
 
 const FileManage: React.FC<PropsType> = (props) => {
   const fileUploadRef = useRef<HTMLInputElement>(null)
-  const { uploader, selectedDataRows, fileDownload, fileRename, fileDelete, fileTransform } = props
+  const { uploader, selectedDataRows, fileDownload, fileRename, fileDelete, fileTransform, fileShare } = props
   const [search] = useSearchParams()
   const { category } = useParams()
   const path = (search.get('path') ? search.get('path') : '/') as string
@@ -106,11 +106,11 @@ const FileManage: React.FC<PropsType> = (props) => {
         <div className='file-selection'>
           <div className='buttons'>
             <div className='button'>
-              <button><ShareAltOutlined className='icon' />分享</button>
+              <button onClick={fileShare}><ShareAltOutlined className='icon' />分享</button>
             </div>
-            <div className='button'>
+            {/* <div className='button'>
               <button><UsergroupAddOutlined className='icon' />共享</button>
-            </div>
+            </div> */}
             <div className='button'>
               <button onClick={() => fileDownload(selectedDataRows)}><DownloadOutlined className='icon' />下载</button>
             </div>
@@ -140,6 +140,7 @@ interface PropsType {
   fileDelete: (files: FileInformation[]) => void
   fileRename: (file: FileInformation) => void
   fileTransform: (files: FileInformation[], type: TransformType) => void
+  fileShare: () => void
 }
 
 export default FileManage

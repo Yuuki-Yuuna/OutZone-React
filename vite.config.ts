@@ -11,6 +11,13 @@ export default defineConfig({
   },
   server: {
     host: '0.0.0.0',
-    port: 3000
+    port: 3000,
+    // proxy: {
+    //   '/api': {
+    //     target: 'http://file.re1ife.top/api',
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api/, '')
+    //   }
+    // }
   }
 })

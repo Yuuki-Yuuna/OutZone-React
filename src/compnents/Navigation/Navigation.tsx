@@ -138,14 +138,6 @@ const Navigation: React.FC<PropsType> = (props) => {
   }
   const dropdownItems: MenuProps['items'] = [
     {
-      key: 'profile',
-      label: '个人主页'
-    },
-    {
-      key: 'help',
-      label: '帮助中心'
-    },
-    {
       key: 'logout',
       label: <div onClick={logout}>退出登录</div>
     }

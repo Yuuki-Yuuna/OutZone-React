@@ -392,3 +392,30 @@
     }
   }
 }
+
+.share-modal {
+  // height: 200px;
+  padding: 20px;
+
+  .label {
+    white-space: nowrap;
+  }
+
+  .share-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+
+    .ant-input {
+      margin: 0 12px;
+    }
+  }
+
+  .share-item + .share-item {
+    margin-top: 20px;
+  }
+
+  .share-link {
+    margin-top: 20px;
+  }
+}

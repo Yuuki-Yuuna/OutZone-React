@@ -58,6 +58,14 @@ export const searchFiles = (params: SearchFilesParams) => {
   return request.get<GetNowFileListData>('/file/searchFiles', { params })
 }
 
+export const createShareLink = (params: CreateShareLinkParams) => {
+  return request.post<CreateShareLinkData>('/file/shareFiles', params)
+}
+
+export const getShare = (params: GetShareParams) => {
+  return request.get<GetShareResponse>('/file/share/'+params.link, { params: { password: params.password } })
+}
+
 export interface GetNowFileListParams {
   groupId: number
   absolutePath: string
@@ -110,6 +118,16 @@ export interface SearchFilesParams {
   fileName: string
 }
 
+export interface CreateShareLinkParams {
+  password: string
+  files: FileInformation[]
+}
+
+export interface GetShareParams {
+  link: string
+  password: string
+}
+
 export interface UploadPreCheckData extends ResponseData {
   data: {
     isSkip: boolean,
@@ -123,6 +141,14 @@ export interface GetNowFileListData extends ResponseData {
 
 export interface DownloadFileData extends ResponseData {
   data: string
+}
+
+export interface CreateShareLinkData extends ResponseData {
+  data: string
+}
+
+export interface GetShareResponse extends ResponseData {
+  data: FileInformation[]
 }
 
 interface ResponseData {

@@ -2,16 +2,16 @@ import React, { useRef, useState, useEffect } from 'react'
 import './Directory.scss'
 import FileManage from '@/compnents/FileManage/FileManage'
 import FileTransform from '@/compnents/FileTransform/FileTransform'
-import { Table, Image, Dropdown, Input, message, Button, List } from 'antd'
+import { Table, Image, Dropdown, Input, message, Button, List, Modal, Tabs } from 'antd'
 import { ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined, LoadingOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons'
-import type { MenuProps } from 'antd'
+import type { MenuProps, TabsProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { FileInformation, TransformType } from '@/type/File'
 import { useStoreSelector, useStoreDispatch } from '@/store'
 import { getFileList, setFileList } from '@/store/features/fileSlice'
 import { computedFileSize } from '@/util/file'
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom'
-import { deleteFiles, downloadFile, getNowFileList, renameDirectory, renameFile, searchFiles } from '@/api/file'
+import { deleteFiles, downloadFile, getNowFileList, renameDirectory, renameFile, searchFiles, createShareLink, getShare, copyFiles } from '@/api/file'
 
 const Directory: React.FC = () => {
   const [fold, setFold] = useState(false)//折叠开关
@@ -37,6 +37,11 @@ const Directory: React.FC = () => {
   const [transformOpen, setTransformOpen] = useState(false)//移动复制对话框
   const [transformType, setTransformType] = useState<TransformType>(null)
   const [transformFiles, setTransformFiles] = useState<FileInformation[]>([])
+  //2023-4-1
+  const [showShareModal, setShowShareModal] = useState(false)
+  const [sharePassword, setSharePassword] = useState('')
+  const [shareLink, setShareLink] = useState('')
+  const [shareTab, setShareTab] = useState('share')
 
   const setPath = (newPath: string) => {
     search.set('path', newPath)
@@ -72,7 +77,7 @@ const Directory: React.FC = () => {
     }
   }
   const fileShare = () => {
-    console.log('分享')
+    setShowShareModal(true)
   }
   const fileDownload = (files: FileInformation[]) => {
     console.log('下载', files)
@@ -215,6 +220,52 @@ const Directory: React.FC = () => {
     }
   }
 
+  const onShareModalCancel = () => {
+    setSharePassword('')
+    setShareLink('')
+    setShowShareModal(false)
+  }
+
+  const onShareTabChange = (activeTab: string) => {
+    setSharePassword('')
+    setShareLink('')
+    setShareTab(activeTab)
+  }
+
+  const createLink = async () => {
+    try {
+      const res = await createShareLink({ password: sharePassword, files: selectedDataRows })
+      const result = res.data
+      if(result.code == 200) {
+        message.success('分享成功')
+        setShareLink(result.data)
+        setSharePassword('')
+      } else {
+        message.error(result.msg)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const getFileByShare = async () => {
+    try {
+      const link = shareLink.split('/').at(-1)!
+      const res = await getShare({ link, password: sharePassword })
+      const result = res.data
+      if(result.code == 200) {
+        const copyRes = await copyFiles({destination: uploadPath, groupId: -1, files: result.data})
+        copyRes.data.code == 200 && message.success('获取成功')
+        setShareLink('')
+        setSharePassword('')
+      } else {
+        message.error(result.msg)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
   useEffect(() => {
     refresh()
     setSelectedDataKeys([])
@@ -260,15 +311,15 @@ const Directory: React.FC = () => {
         </div>
       )
     },
-    {
-      key: 'group',
-      label: (
-        <div onClick={changeOperation('group')}>
-          <UsergroupAddOutlined />
-          <span>共享</span>
-        </div>
-      )
-    }
+    // {
+    //   key: 'group',
+    //   label: (
+    //     <div onClick={changeOperation('group')}>
+    //       <UsergroupAddOutlined />
+    //       <span>共享</span>
+    //     </div>
+    //   )
+    // }
   ]
 
   const rowOption = (record: FileInformation, index?: number) => {
@@ -389,10 +440,46 @@ const Directory: React.FC = () => {
     )
   }
 
+  const shareTabs: TabsProps['items']= [
+    {
+      key: 'share',
+      label: '分享文件',
+      children: (
+        <div className='share-modal'>
+          <div className='share-item'>
+            <span className='label'>分享密码：</span>
+            <Input placeholder='输入分享密码' maxLength={8} value={sharePassword} onChange={(event) => setSharePassword(event.target.value)} />
+            <Button type='primary' onClick={createLink}>生成链接</Button>
+          </div>
+          {shareLink ? (<div className='share-link'>
+            <span>分享链接：</span>
+            <p>{shareLink}</p>
+            </div>) : null}
+        </div>)
+    },
+    {
+      key: 'get',
+      label: '获取文件',
+      children: (
+        <div className='share-modal'>
+          <div className='share-item'>
+          <span className='label'>分享链接：</span>
+          <Input placeholder='输入分享链接' maxLength={100} value={shareLink} onChange={(event) => setShareLink(event.target.value)} />
+          </div>
+          <div className='share-item'>
+            <span className='label'>分享密码：</span>
+            <Input placeholder='输入分享密码' maxLength={8} value={sharePassword} onChange={(event) => setSharePassword(event.target.value)} />
+            <Button type='primary' onClick={getFileByShare}>获取文件</Button>
+          </div>
+        </div>
+      )
+    }
+  ]
+
   return (
     <div className='directory'>
       <div className='content'>
-        <FileManage {...{ uploader, selectedDataRows, fileDownload, fileDelete, fileRename, fileTransform }} />
+        <FileManage {...{ uploader, selectedDataRows, fileDownload, fileDelete, fileRename, fileTransform, fileShare }} />
         <div className='title'>
           {path == '/' ? <h4>{query ? '搜索: ' + query : '全部文件'}</h4> : (
             <div className='path'>
@@ -452,10 +539,10 @@ const Directory: React.FC = () => {
               <ShareAltOutlined />
               <span>分享</span>
             </div>
-            <div className='menu-item' onClick={fileGroup}>
+            {/* <div className='menu-item' onClick={fileGroup}>
               <UsergroupAddOutlined />
               <span>共享</span>
-            </div>
+            </div> */}
             <div className='menu-item' onClick={() => fileTransform(selectedDataRows, 'copy')}>
               <CopyOutlined />
               <span>复制</span>
@@ -521,6 +608,9 @@ const Directory: React.FC = () => {
           )}
         </div>
       </div>
+      <Modal title={'文件分享'} open={showShareModal} onCancel={onShareModalCancel} onOk={onShareModalCancel} okText='确认' cancelText='取消'>
+        <Tabs activeKey={shareTab} items={shareTabs} onChange={onShareTabChange} />
+      </Modal>
     </div>
   )
 }
