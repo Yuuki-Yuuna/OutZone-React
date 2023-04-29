@@ -1,0 +1,11 @@
+{
+  "token": {
+    "colorPrimary": "#6f62ea",
+    "colorSuccess": "#1a8d89",
+    "colorWarning": "#ecbe92",
+    "colorError": "#eeaca6",
+    "colorInfo": "#6156ca",
+    "colorBgBase": "#0a0a0a",
+    "fontSizeIcon": 18
+  }
+}
