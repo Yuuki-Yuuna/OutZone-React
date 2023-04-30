@@ -11,7 +11,7 @@ export const useStyles = createStyles(({ token, css }) => {
       cursor: pointer;
       transition: all 0.3s;
       &:hover {
-        background: ${token.colorBgContainer};
+        background: ${token.colorFillSecondary};
       }
     `,
     listItemSelected: css`
@@ -44,6 +44,7 @@ export const useStyles = createStyles(({ token, css }) => {
     fileOptionsPannel: css`
       display: flex;
       gap: 0.25em;
+      color: ${token.colorPrimary};
     `,
     fileOptionsIcon: css`
       transform: scale(0.8);

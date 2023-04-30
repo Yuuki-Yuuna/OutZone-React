@@ -12,10 +12,9 @@ interface Props {
   onRename(): void
   onCopy(): void
   onMove(): void
-  // 预览
-  onPreview?(): void
   isSelected: boolean
   onSelect(value: boolean): void
+  onClick(): void
   file: FileItem
 }
 
@@ -40,7 +39,8 @@ export default function ListItem({
   onDelete,
   onRename,
   onCopy,
-  onMove
+  onMove,
+  onClick
 }: Props) {
   const { styles, cx } = useStyles()
 
@@ -61,6 +61,7 @@ export default function ListItem({
 
   return (
     <div
+      onClick={onClick}
       className={cx(
         styles.listItem,
         isSelected ? styles.listItemSelected : undefined
@@ -91,7 +92,7 @@ export default function ListItem({
       </div>
       <div className={styles.listItemFlexThree}>
         <FileTimeAndSize
-          createDate='Created_At'
+          createDate={file.createDate}
           size={file.size}
         ></FileTimeAndSize>
       </div>

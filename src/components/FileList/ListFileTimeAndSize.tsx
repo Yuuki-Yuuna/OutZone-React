@@ -5,6 +5,15 @@ function canBeNumber(s: string) {
   return !isNaN(Number(s))
 }
 
+function toSize(s: string) {
+  return canBeNumber(s) ? computedFileSize(Number(s)) : s
+}
+
+function toDate(s: string) {
+  const d = new Date(s)
+  return d.toString() === 'Invalid Date' ? s : d.toLocaleDateString()
+}
+
 export default function FileTimeAndSize({
   createDate,
   size
@@ -16,8 +25,8 @@ export default function FileTimeAndSize({
 
   return (
     <div className={styles.fileTimeAndSize}>
-      <div>{createDate}</div>
-      <div>{canBeNumber(size) ? computedFileSize(Number(size)) : size}</div>
+      <div>{toDate(createDate)}</div>
+      <div>{toSize(size)}</div>
     </div>
   )
 }

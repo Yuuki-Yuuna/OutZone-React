@@ -41,7 +41,19 @@ const testData = [
   }
 ]
 
-export default function ListFile() {
+interface Props {
+  fileList: FileItem[]
+  onShareItem(item: FileItem): void
+  onDownloadItem(item: FileItem): void
+  onDeleteItem(item: FileItem): void
+  onRenameItem(item: FileItem): void
+  onCopyItem(item: FileItem): void
+  onMoveItem(item: FileItem): void
+  onClickItem(item: FileItem): void // 点击某一项目触发，用例：显示预览
+  onSelectChange(selectedItems: FileItem[]): void // 用例：显示多选操作栏时需要
+}
+
+export default function ListAllFile(props: Props) {
   const [fileList, setFileList] = useState(fileListDataToReactiveData(testData))
 
   return (
@@ -59,22 +71,28 @@ export default function ListFile() {
         <ListItem
           key={fileItem.id}
           file={fileItem}
-          onDelete={() => {}}
-          onCopy={() => {}}
-          onDownload={() => {}}
-          onMove={() => {}}
-          onRename={() => {}}
-          onShare={() => {}}
+          onDelete={() => props.onDeleteItem(fileItem)}
+          onCopy={() => props.onCopyItem(fileItem)}
+          onDownload={() => props.onDownloadItem(fileItem)}
+          onMove={() => props.onMoveItem(fileItem)}
+          onRename={() => props.onRenameItem(fileItem)}
+          onShare={() => props.onShareItem(fileItem)}
           isSelected={fileItem.selected}
+          // 此select是选中其左侧checkbox
           onSelect={(val) => {
-            setFileList((fileList) =>
-              fileList.map((item) => {
+            setFileList((fileList) => {
+              // after为变更后state
+              const after = fileList.map((item) => {
                 return fileItem.id === item.id
                   ? { ...item, selected: val }
                   : item
               })
-            )
+              // 回调中使用变更后state，保证状态一致
+              props.onSelectChange(fileList.filter((item) => item.selected))
+              return after
+            })
           }}
+          onClick={() => props.onClickItem(fileItem)}
         />
       ))}
     </>
