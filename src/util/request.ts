@@ -1,4 +1,3 @@
-import { App } from 'antd'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ResponseData } from '~/types'
 
