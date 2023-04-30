@@ -9,7 +9,8 @@ const router = createBrowserRouter([
   {
     path: '/',
     Component: lazy(() => import('~/views/Home/Home'))
-  }
+  },
+  { path: '/intro', Component: lazy(() => import('~/views/Intro/Intro')) }
 ])
 
 export default router

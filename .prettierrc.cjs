@@ -8,5 +8,5 @@ module.exports = {
   trailingComma: 'none',
   arrowParens: 'always',
   jsxSingleQuote: true,
-  endOfLine: 'LF'
+  endOfLine: 'lf'
 }
