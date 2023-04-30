@@ -13,7 +13,10 @@ const App: React.FC = () => {
 
   return (
     <ConfigProvider locale={zhCN}>
-      <ThemeProvider theme={themeMode == 'dark' ? darkTheme : theme} themeMode={themeMode}>
+      <ThemeProvider
+        theme={themeMode == 'dark' ? darkTheme : theme}
+        themeMode={themeMode}
+      >
         <AntdApp>
           <GlobalStyle />
           <Suspense>

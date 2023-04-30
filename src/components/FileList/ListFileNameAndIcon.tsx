@@ -26,6 +26,12 @@ export default function FileNameAndIcon({
   return (
     <div className={styles.fileNameAndIcon}>
       <Checkbox
+        // 必须阻止冒泡
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-ignore
+        onClick={(e: any) => {
+          e.stopPropagation()
+        }}
         checked={isSelected}
         onChange={(e: CheckboxChangeEvent) => onSelect(e.target.checked)}
       ></Checkbox>

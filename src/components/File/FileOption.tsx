@@ -6,7 +6,8 @@ import { UploaderContext } from '~/contexts'
 
 const FileOption: React.FC = () => {
   const { styles } = useStyles()
-  const { register, unRegister, registerDrop, unRegisterDrop } = useContext(UploaderContext)!
+  const { register, unRegister, registerDrop, unRegisterDrop } =
+    useContext(UploaderContext)!
   const uploadRef = useRef<HTMLElement>(null)
 
   useEffect(() => {

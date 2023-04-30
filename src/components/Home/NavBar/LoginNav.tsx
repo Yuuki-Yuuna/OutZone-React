@@ -122,13 +122,21 @@ const LoginNav: React.FC = () => {
               ]}
             >
               <div>
-                <Input style={{ width: 100 }} maxLength={10} placeholder='输入验证码 ' />
+                <Input
+                  style={{ width: 100 }}
+                  maxLength={10}
+                  placeholder='输入验证码 '
+                />
                 {countDown ? (
                   <Button className={styles.capcha} disabled type='link'>
                     重新发送{countDown}
                   </Button>
                 ) : (
-                  <Button className={styles.capcha} type='link' onClick={sendCapcha}>
+                  <Button
+                    className={styles.capcha}
+                    type='link'
+                    onClick={sendCapcha}
+                  >
                     发送验证码
                   </Button>
                 )}

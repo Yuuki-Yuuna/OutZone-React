@@ -15,32 +15,6 @@ function fileListDataToReactiveData<T extends object>(
   }) as T_ADD[]
 }
 
-// TODO: 此数组仅供测试
-const testData = [
-  {
-    id: '1652221637968588803',
-    contentType: 0,
-    name: '/test/',
-    icon: 'https://file.re1ife.top/icon/const/directory.png',
-    size: '0',
-    parentDirectoryId: '1652221637968588802',
-    absolutePath: '/test/',
-    createDate: '2023-04-30T10:53:01',
-    updateDate: '2023-04-30T10:53:01'
-  },
-  {
-    id: '1',
-    contentType: 1,
-    name: 'test',
-    icon: 'https://file.re1ife.top/icon/const/other.png',
-    size: '1336',
-    parentDirectoryId: '1652221637968588802',
-    absolutePath: '/',
-    createDate: '2023-04-30T10:55:18',
-    updateDate: '2023-04-30T10:55:18'
-  }
-]
-
 interface Props {
   fileList: FileItem[]
   onShareItem(item: FileItem): void
@@ -49,24 +23,32 @@ interface Props {
   onRenameItem(item: FileItem): void
   onCopyItem(item: FileItem): void
   onMoveItem(item: FileItem): void
+  onOpenItem(item: FileItem): void // 此时 item 必为 文件夹
   onClickItem(item: FileItem): void // 点击某一项目触发，用例：显示预览
-  onSelectChange(selectedItems: FileItem[]): void // 用例：显示多选操作栏时需要
+  onSelectedChange(selectedItems: FileItem[]): void // 用例：显示多选操作栏时需要
 }
 
 export default function ListAllFile(props: Props) {
-  const [fileList, setFileList] = useState(fileListDataToReactiveData(testData))
+  const [fileList, setFileList] = useState(
+    fileListDataToReactiveData(props.fileList)
+  )
 
   return (
     <>
       <ListItemHeader
         onChange={(isSelectAllFile) => {
-          setFileList((fileList) =>
-            fileList.map((item) => {
-              return { ...item, selected: isSelectAllFile }
-            })
-          )
+          setFileList((fileList) => {
+            const after = fileList.map((item) => ({
+              ...item,
+              selected: isSelectAllFile
+            }))
+            // 回调中使用变更后state，保证状态一致
+            props.onSelectedChange?.(after.filter((item) => item.selected))
+            return after
+          })
         }}
-      ></ListItemHeader>
+      />
+
       {fileList.map((fileItem) => (
         <ListItem
           key={fileItem.id}
@@ -77,6 +59,7 @@ export default function ListAllFile(props: Props) {
           onMove={() => props.onMoveItem(fileItem)}
           onRename={() => props.onRenameItem(fileItem)}
           onShare={() => props.onShareItem(fileItem)}
+          onOpen={() => props.onOpenItem(fileItem)}
           isSelected={fileItem.selected}
           // 此select是选中其左侧checkbox
           onSelect={(val) => {
@@ -88,7 +71,7 @@ export default function ListAllFile(props: Props) {
                   : item
               })
               // 回调中使用变更后state，保证状态一致
-              props.onSelectChange(fileList.filter((item) => item.selected))
+              props.onSelectedChange?.(after.filter((item) => item.selected))
               return after
             })
           }}

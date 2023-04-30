@@ -53,6 +53,11 @@ export const useStyles = createStyles(({ token, css }) => {
         opacity: 0.8;
         transform: scale(0.9);
       }
+    `,
+    fileName: css`
+      &:hover {
+        color: ${token.colorPrimary};
+      }
     `
   }
 })

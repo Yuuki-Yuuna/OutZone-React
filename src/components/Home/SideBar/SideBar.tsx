@@ -77,9 +77,9 @@ const SideBar: React.FC = () => {
       />
       <div className={styles.capacity}>
         <Progress percent={20} showInfo={false} size='small' />
-        <div className={styles.info}>{`${computedFileSize(0)}/${computedFileSize(
-          2 * 1024 ** 4
-        )}`}</div>
+        <div className={styles.info}>{`${computedFileSize(
+          0
+        )}/${computedFileSize(2 * 1024 ** 4)}`}</div>
       </div>
     </Layout.Sider>
   )
