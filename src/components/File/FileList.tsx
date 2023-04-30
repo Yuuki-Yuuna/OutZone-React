@@ -1,6 +1,7 @@
 import React from 'react'
 import { createStyles } from 'antd-style'
 import FileOption from './FileOption'
+import FileListComponent from '../FileList/ListAllFile'
 
 const FileList: React.FC = () => {
   const { styles } = useStyles()
@@ -8,6 +9,8 @@ const FileList: React.FC = () => {
   return (
     <div className={styles.container}>
       <FileOption />
+
+      <FileListComponent />
     </div>
   )
 }

@@ -35,13 +35,20 @@ const NavBar: React.FC = () => {
 
   return (
     <Layout.Header className={styles.container}>
-      <Image src='/logo.png' height={'100%'} preview={false} style={{ verticalAlign: 'top' }} />
+      <Image
+        src='/logo.png'
+        height={'100%'}
+        preview={false}
+        style={{ verticalAlign: 'top' }}
+      />
       <div style={{ flex: 1 }}></div>
       {isLogin ? <UserNav /> : <LoginNav />}
       <Divider type='vertical' />
       <Switch
         checkedChildren={<IconFont type='moon' className={styles.switchIcon} />}
-        unCheckedChildren={<IconFont type='sun' className={styles.switchIcon} />}
+        unCheckedChildren={
+          <IconFont type='sun' className={styles.switchIcon} />
+        }
         onChange={onThemeChange}
       />
     </Layout.Header>
