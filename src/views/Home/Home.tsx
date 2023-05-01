@@ -1,32 +1,45 @@
 import React from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { useUploader } from 'yuuki-uploader-react'
 import { createStyles } from 'antd-style'
-import { Layout } from 'antd'
-import { useStoreSelector } from '~/store'
+import { App, Layout } from 'antd'
 import NavBar from '~/components/Home/NavBar/NavBar'
 import SideBar from '~/components/Home/SideBar/SideBar'
 import FileList from '~/components/File/FileList'
 import { UploaderContext } from '~/contexts'
-import { baseURL } from '~/util'
+import { ResponseError, baseURL } from '~/util'
+import { getInfo } from '~/api'
 
 const Home: React.FC = () => {
   const { styles } = useStyles()
-  const [search] = useSearchParams()
+  const { message } = App.useApp()
 
-  const destinationPath = search.get('path') || '/'
-  const ownerId = useStoreSelector((state) => state.user.userInfo?.uId ?? '')
-
-  const createExtraData = () => ({ destinationPath, ownerType: 0, ownerId })
   const uploader = useUploader({
     target: `${baseURL}/file/upload/file`,
     mergeTarget: `${baseURL}/file/upload/merge`,
     precheckTarget: `${baseURL}/file/upload/preCheck`,
-    precheckData: createExtraData,
-    mergeData: createExtraData,
-    data: createExtraData,
-    onFileReady(uploadFile) {
-      uploader.upload(uploadFile)
+    headers: {
+      token: localStorage.getItem('token') || ''
+    },
+    async onFileReady(uploadFile) {
+      try {
+        const res = await getInfo()
+        const { data } = res
+        const extraData = {
+          destinationPath: data.additionalInformation.rootDirectory.id,
+          ownerType: 0,
+          ownerId: data.uId
+        }
+        uploadFile.raw.extraData = {
+          mergeData: { ...extraData, icon: '' },
+          precheckData: extraData,
+          data: extraData
+        }
+        console.log(uploadFile)
+        uploader.upload(uploadFile)
+      } catch (err) {
+        message.error((err as ResponseError).message)
+        uploader.removeFile(uploadFile)
+      }
     }
   })
 

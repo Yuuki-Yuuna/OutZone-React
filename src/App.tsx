@@ -6,17 +6,11 @@ import zhCN from 'antd/locale/zh_CN'
 import router from './router'
 import theme from './theme.json'
 import darkTheme from './dark-theme.json'
-import { useStoreSelector } from './store'
 
 const App: React.FC = () => {
-  const themeMode = useStoreSelector((state) => state.theme.themeMode)
-
   return (
     <ConfigProvider locale={zhCN}>
-      <ThemeProvider
-        theme={themeMode == 'dark' ? darkTheme : theme}
-        themeMode={themeMode}
-      >
+      <ThemeProvider theme={theme} themeMode={'light'}>
         <AntdApp>
           <GlobalStyle />
           <Suspense>
