@@ -30,6 +30,7 @@ export default function FileOptionsPannel({
   return (
     <div className={styles.fileOptionsPannel}>
       <ShareAltOutlined
+        title='分享'
         className={styles.fileOptionsIcon}
         onClick={(e) => {
           e.stopPropagation()
@@ -37,6 +38,7 @@ export default function FileOptionsPannel({
         }}
       />
       <DownloadOutlined
+        title='下载'
         className={styles.fileOptionsIcon}
         onClick={(e) => {
           e.stopPropagation()
@@ -44,6 +46,7 @@ export default function FileOptionsPannel({
         }}
       />
       <DeleteOutlined
+        title='删除'
         className={styles.fileOptionsIcon}
         onClick={(e) => {
           e.stopPropagation()
@@ -51,6 +54,7 @@ export default function FileOptionsPannel({
         }}
       />
       <EditOutlined
+        title='重命名'
         className={styles.fileOptionsIcon}
         onClick={(e) => {
           e.stopPropagation()
@@ -99,7 +103,7 @@ export default function FileOptionsPannel({
           ]
         }}
       >
-        <EllipsisOutlined className={styles.fileOptionsIcon} />
+        <EllipsisOutlined title='更多' className={styles.fileOptionsIcon} />
       </Dropdown>
     </div>
   )

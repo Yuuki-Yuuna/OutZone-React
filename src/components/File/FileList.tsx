@@ -32,10 +32,10 @@ const testFileList = [
 const FileList: React.FC = () => {
   const { styles } = useStyles()
 
+  // TODO: 此组件暂时测试
   return (
     <div className={styles.container}>
       <FileOption />
-      // TODO: 此组件暂时测试
       <FileListComponent
         fileList={testFileList}
         onClickItem={(item) => console.log('onClickItem', item)}
@@ -45,8 +45,8 @@ const FileList: React.FC = () => {
         onMoveItem={(item) => console.log('onMoveItem', item)}
         onOpenItem={(item) => console.log('onOpenItem', item)}
         onRenameItem={(item) => console.log('onRenameItem', item)}
-        onSelectedChange={(item) => console.log('onSelectedChange', item)}
         onShareItem={(item) => console.log('onShareItem', item)}
+        onSelectedChange={(item) => console.log('onSelectedChange', item)}
       />
     </div>
   )

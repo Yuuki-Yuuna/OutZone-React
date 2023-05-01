@@ -1,8 +1,37 @@
 import React, { useContext, useEffect, useRef } from 'react'
 import { createStyles } from 'antd-style'
-import { UploadOutlined } from '@ant-design/icons'
+import {
+  UploadOutlined,
+  CopyOutlined,
+  DeleteOutlined,
+  DownloadOutlined,
+  EditOutlined,
+  EllipsisOutlined,
+  ShareAltOutlined,
+  DragOutlined
+} from '@ant-design/icons'
 import { Button } from 'antd'
 import { UploaderContext } from '~/contexts'
+
+const IconWithText = ({
+  icon,
+  children
+}: {
+  icon: React.ReactNode
+  children: React.ReactNode
+}) => (
+  <div
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '0.25em'
+    }}
+  >
+    <div style={{ transform: 'scale(0.75)' }}>{icon}</div>
+    <div>{children}</div>
+  </div>
+)
 
 const FileOption: React.FC = () => {
   const { styles } = useStyles()
@@ -20,8 +49,27 @@ const FileOption: React.FC = () => {
     }
   })
 
+  // TODO: 若有选中任意文件/文件夹，则显示按钮组，否则显示上传按钮
   return (
     <div className={styles.container}>
+      <div className={styles.buttonGroup}>
+        <button className={styles.button}>
+          <IconWithText icon={<ShareAltOutlined />}> 分享</IconWithText>
+        </button>
+        <button className={styles.button}>
+          <IconWithText icon={<DeleteOutlined />}> 删除</IconWithText>
+        </button>
+        <button className={styles.button}>
+          <IconWithText icon={<DownloadOutlined />}> 下载</IconWithText>
+        </button>
+        <button className={styles.button}>
+          <IconWithText icon={<CopyOutlined />}> 复制</IconWithText>
+        </button>
+        <button className={styles.button}>
+          <IconWithText icon={<DragOutlined />}> 移动</IconWithText>
+        </button>
+      </div>
+
       <Button
         ref={uploadRef}
         className={styles.upload}
@@ -44,7 +92,7 @@ const useStyles = createStyles(({ token, css }) => {
       padding: 5px 10px;
     `,
     upload: css`
-      margin-right: 20px;
+      margin: 0 20px;
       font-weight: ${token.fontWeightStrong};
     `,
     button: css`
@@ -58,6 +106,32 @@ const useStyles = createStyles(({ token, css }) => {
       font-weight: ${token.fontWeightStrong};
       color: ${token.colorPrimary};
       background-color: ${token.colorPrimaryBorder};
+    `,
+    buttonGroup: css`
+      display: inline-block;
+      vertical-align: top;
+      overflow: hidden;
+      border-radius: 32px;
+      & button:last-child {
+        &:after {
+          display: none;
+        }
+      }
+      & button {
+        border-radius: 0;
+        position: relative;
+        &:after {
+          z-index: 10;
+          position: absolute;
+          content: '';
+          height: 50%;
+          transform: translateY(50%);
+          border-right: solid 1px ${token.colorPrimary};
+          opacity: 0.33;
+          top: 0;
+          right: 0;
+        }
+      }
     `
   }
 })

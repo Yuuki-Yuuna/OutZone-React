@@ -2,6 +2,7 @@ import ListItem from './ListItem'
 import ListItemHeader from './ListItemHeader'
 import type { FileItem } from './ListItem'
 import { useState } from 'react'
+import ListBlank from './ListBlank'
 
 function fileListDataToReactiveData<T extends object>(
   arr: T[]
@@ -33,51 +34,54 @@ export default function ListAllFile(props: Props) {
     fileListDataToReactiveData(props.fileList)
   )
 
-  return (
-    <>
-      <ListItemHeader
-        onChange={(isSelectAllFile) => {
-          setFileList((fileList) => {
-            const after = fileList.map((item) => ({
-              ...item,
-              selected: isSelectAllFile
-            }))
-            // 回调中使用变更后state，保证状态一致
-            props.onSelectedChange?.(after.filter((item) => item.selected))
-            return after
-          })
-        }}
-      />
-
-      {fileList.map((fileItem) => (
-        <ListItem
-          key={fileItem.id}
-          file={fileItem}
-          onDelete={() => props.onDeleteItem(fileItem)}
-          onCopy={() => props.onCopyItem(fileItem)}
-          onDownload={() => props.onDownloadItem(fileItem)}
-          onMove={() => props.onMoveItem(fileItem)}
-          onRename={() => props.onRenameItem(fileItem)}
-          onShare={() => props.onShareItem(fileItem)}
-          onOpen={() => props.onOpenItem(fileItem)}
-          isSelected={fileItem.selected}
-          // 此select是选中其左侧checkbox
-          onSelect={(val) => {
+  if (fileList.length > 0)
+    return (
+      <>
+        <ListItemHeader
+          onChange={(isSelectAllFile) => {
             setFileList((fileList) => {
-              // after为变更后state
-              const after = fileList.map((item) => {
-                return fileItem.id === item.id
-                  ? { ...item, selected: val }
-                  : item
-              })
+              const after = fileList.map((item) => ({
+                ...item,
+                selected: isSelectAllFile
+              }))
               // 回调中使用变更后state，保证状态一致
               props.onSelectedChange?.(after.filter((item) => item.selected))
               return after
             })
           }}
-          onClick={() => props.onClickItem(fileItem)}
+          selectedItemsCount={fileList.filter((item) => item.selected).length}
         />
-      ))}
-    </>
-  )
+
+        {fileList.map((fileItem) => (
+          <ListItem
+            key={fileItem.id}
+            file={fileItem}
+            onDelete={() => props.onDeleteItem(fileItem)}
+            onCopy={() => props.onCopyItem(fileItem)}
+            onDownload={() => props.onDownloadItem(fileItem)}
+            onMove={() => props.onMoveItem(fileItem)}
+            onRename={() => props.onRenameItem(fileItem)}
+            onShare={() => props.onShareItem(fileItem)}
+            onOpen={() => props.onOpenItem(fileItem)}
+            isSelected={fileItem.selected}
+            // 此select是选中其左侧checkbox
+            onSelect={(val) => {
+              setFileList((fileList) => {
+                // after为变更后state
+                const after = fileList.map((item) => {
+                  return fileItem.id === item.id
+                    ? { ...item, selected: val }
+                    : item
+                })
+                // 回调中使用变更后state，保证状态一致
+                props.onSelectedChange?.(after.filter((item) => item.selected))
+                return after
+              })
+            }}
+            onClick={() => props.onClickItem(fileItem)}
+          />
+        ))}
+      </>
+    )
+  else return <ListBlank />
 }
