@@ -16,6 +16,10 @@
       &:hover {
         background: none;
       }
+
+      img {
+        mix-blend-mode: color-dodge;
+      }
     }
 
     .header-link {

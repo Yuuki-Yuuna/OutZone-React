@@ -19,9 +19,9 @@ export default function Intro() {
           }}
         >
           <div style={{ display: 'flex', gap: '1em' }}>
-            {/* <div className='header-logo'>
-              <img src='/logo.svg' alt='logo' width={32} />
-            </div> */}
+            <div className='header-logo'>
+              <img src='/logo.png' alt='logo' width={100} />
+            </div>
             {/* <span className='header-link'>首页</span> */}
             {/* <span className='header-link'>中转站</span> */}
             {/* <span className='header-link'>开放平台</span> */}
