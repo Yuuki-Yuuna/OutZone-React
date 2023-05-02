@@ -27,7 +27,9 @@ export const uploadFileMerge = (params: UploadFileMergeParams) => {
 }
 
 export const downloadFile = (params: DownloadFileParams) => {
-  return request.post<DownloadFileData>('/file/download', params, { headers: { 'content-type': 'application/x-www-form-urlencoded' } })
+  return request.post<DownloadFileData>('/file/download', params, {
+    headers: { 'content-type': 'application/x-www-form-urlencoded' }
+  })
 }
 
 export const deleteFiles = (params: ContorlFilesParams) => {
@@ -63,7 +65,17 @@ export const createShareLink = (params: CreateShareLinkParams) => {
 }
 
 export const getShare = (params: GetShareParams) => {
-  return request.get<GetShareResponse>('/file/share/'+params.link, { params: { password: params.password } })
+  return request.get<GetShareResponse>('/file/share/' + params.link, {
+    params: { password: params.password }
+  })
+}
+
+export const getRecycle = (params: GetRecycleParams) => {
+  return request.get<GetRecycleResponse>('/file/getRecyclingBin', { params })
+}
+
+export const recover = (params: { ids: number[] }) => {
+  return request.post('/file/recover', params)
 }
 
 export interface GetNowFileListParams {
@@ -76,11 +88,11 @@ export interface GetNowFileListByFileTypeParams {
 }
 
 export interface UploadFileParams {
-  totalSize: number,
-  identifier: string,
-  filename: string,
-  totalChunks: number,
-  uploadCloudPath: string,
+  totalSize: number
+  identifier: string
+  filename: string
+  totalChunks: number
+  uploadCloudPath: string
   groupId: number
 }
 
@@ -128,9 +140,11 @@ export interface GetShareParams {
   password: string
 }
 
+export interface GetRecycleParams {}
+
 export interface UploadPreCheckData extends ResponseData {
   data: {
-    isSkip: boolean,
+    isSkip: boolean
     needMerge: boolean
   }
 }
@@ -149,6 +163,18 @@ export interface CreateShareLinkData extends ResponseData {
 
 export interface GetShareResponse extends ResponseData {
   data: FileInformation[]
+}
+
+export interface GetRecycleResponse extends ResponseData {
+  data: {
+    absolutePath: string
+    fileId: number
+    fileName: string
+    id: number
+    parentDirectoryId: number
+    uploadDate: string
+    userId: number
+  }[]
 }
 
 interface ResponseData {

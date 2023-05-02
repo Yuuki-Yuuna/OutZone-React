@@ -166,8 +166,8 @@ const Navigation: React.FC<PropsType> = (props) => {
   return (
     <div className='navigation'>
       <div className='logo' onClick={() => navigate('/home')}>
-        <Image src='/src/assets/logo.svg' width={60} preview={false}></Image>
-        <h1>LOGO</h1>
+        <Image src='/logo.svg' width={60} preview={false}></Image>
+        <h1>OutZone</h1>
       </div>
       <div className='flex-grow'></div>
       <div className='profile'>

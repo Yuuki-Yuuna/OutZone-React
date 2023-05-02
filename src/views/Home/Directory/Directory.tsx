@@ -3,7 +3,21 @@ import './Directory.scss'
 import FileManage from '@/compnents/FileManage/FileManage'
 import FileTransform from '@/compnents/FileTransform/FileTransform'
 import { Table, Image, Dropdown, Input, message, Button, List, Modal, Tabs } from 'antd'
-import { ShareAltOutlined, DownloadOutlined, DeleteOutlined, EditOutlined, EllipsisOutlined, CopyOutlined, DragOutlined, UsergroupAddOutlined, LeftOutlined, RightOutlined, LoadingOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons'
+import {
+  ShareAltOutlined,
+  DownloadOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  EllipsisOutlined,
+  CopyOutlined,
+  DragOutlined,
+  UsergroupAddOutlined,
+  LeftOutlined,
+  RightOutlined,
+  LoadingOutlined,
+  CheckOutlined,
+  CloseOutlined
+} from '@ant-design/icons'
 import type { MenuProps, TabsProps } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { FileInformation, TransformType } from '@/type/File'
@@ -11,30 +25,42 @@ import { useStoreSelector, useStoreDispatch } from '@/store'
 import { getFileList, setFileList } from '@/store/features/fileSlice'
 import { computedFileSize } from '@/util/file'
 import { useOutletContext, useParams, useSearchParams } from 'react-router-dom'
-import { deleteFiles, downloadFile, getNowFileList, renameDirectory, renameFile, searchFiles, createShareLink, getShare, copyFiles } from '@/api/file'
+import {
+  deleteFiles,
+  downloadFile,
+  getNowFileList,
+  renameDirectory,
+  renameFile,
+  searchFiles,
+  createShareLink,
+  getShare,
+  copyFiles,
+  getRecycle,
+  recover
+} from '@/api/file'
 
 const Directory: React.FC = () => {
-  const [fold, setFold] = useState(false)//折叠开关
-  const rightMenu = useRef<HTMLDivElement>(null)//自定义右键菜单
+  const [fold, setFold] = useState(false) //折叠开关
+  const rightMenu = useRef<HTMLDivElement>(null) //自定义右键菜单
   let operationType: OperationType = null
-  const [selectedDataKeys, setSelectedDataKeys] = useState<React.Key[]>([])//表格选中项key值
-  const [selectedDataRows, setSelectedDataRows] = useState<FileInformation[]>([])//当前选中项数组
+  const [selectedDataKeys, setSelectedDataKeys] = useState<React.Key[]>([]) //表格选中项key值
+  const [selectedDataRows, setSelectedDataRows] = useState<FileInformation[]>([]) //当前选中项数组
   const [folderPreviewList, setFolderPreviewList] = useState<FileInformation[]>([])
   const [folderPreviewLoading, setFolderPreviewLoading] = useState(false)
-  const fileList = useStoreSelector(state => state.file.fileList)
-  const loadingStatus = useStoreSelector(state => state.file.status)
-  const [isLoading, setIsloading] = useState(false)//加载状态由isLoading和loadingStatus共同组成
+  const fileList = useStoreSelector((state) => state.file.fileList)
+  const loadingStatus = useStoreSelector((state) => state.file.status)
+  const [isLoading, setIsloading] = useState(false) //加载状态由isLoading和loadingStatus共同组成
   const dispatch = useStoreDispatch()
   const [search, setSearch] = useSearchParams()
   const { category } = useParams()
   const query = search.get('query')
   const path = (search.get('path') ? search.get('path') : '/') as string
-  const uploadPath = path == '/' || category != 'all' ? '/' : path + '/'//上传路径有'/'
+  const uploadPath = path == '/' || category != 'all' ? '/' : path + '/' //上传路径有'/'
   const { groupId, uploader } = useOutletContext<ContextType>()
-  const [editingData, setEditingData] = useState<FileInformation | null>(null)//处于编辑状态的数据
+  const [editingData, setEditingData] = useState<FileInformation | null>(null) //处于编辑状态的数据
   const [editingName, setEditingName] = useState('')
-  const [firstEdit, setFirstEdit] = useState(true)//是否第一次编辑
-  const [transformOpen, setTransformOpen] = useState(false)//移动复制对话框
+  const [firstEdit, setFirstEdit] = useState(true) //是否第一次编辑
+  const [transformOpen, setTransformOpen] = useState(false) //移动复制对话框
   const [transformType, setTransformType] = useState<TransformType>(null)
   const [transformFiles, setTransformFiles] = useState<FileInformation[]>([])
   //2023-4-1
@@ -65,11 +91,11 @@ const Directory: React.FC = () => {
   }
   const changeOperation = (type: OperationType) => {
     // //柯里化传参，changeOperation渲染时会被调用多次,不要有多余操作
-    return () => operationType = type//别用setState，这个数据不用渲染并且setState(虽然同步但有延迟,看了下原理)会导致修改不及时出bug
+    return () => (operationType = type) //别用setState，这个数据不用渲染并且setState(虽然同步但有延迟,看了下原理)会导致修改不及时出bug
   }
   const fileEnter = (file: FileInformation) => {
     return (event: React.MouseEvent) => {
-      event.stopPropagation()//阻止冒泡
+      event.stopPropagation() //阻止冒泡
       if (file.directoryType) {
         const newPath = file.path.slice(0, file.path.length - 1)
         setPath(newPath)
@@ -88,40 +114,44 @@ const Directory: React.FC = () => {
         parentId: file.parentId,
         id: file.id,
         filename: file.name
-      }).then(res => {
-        // console.log(res.data)
-        const result = res.data
-        if (result.code == 200) {
-          const a = document.createElement('a')
-          a.href = res.data.data
-          a.click()
-          message.success('已添加下载~')
-        } else {
-          message.error(result.msg)
-        }
-      }).catch(err => {
-        console.log(err)
       })
+        .then((res) => {
+          // console.log(res.data)
+          const result = res.data
+          if (result.code == 200) {
+            const a = document.createElement('a')
+            a.href = res.data.data
+            a.click()
+            message.success('已添加下载~')
+          } else {
+            message.error(result.msg)
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     }
   }
   const fileDelete = (files: FileInformation[]) => {
     // console.log('删除', files)
     setIsloading(true)
-    deleteFiles({ destination: uploadPath, groupId, files }).then(res => {
-      // console.log(res.data)
-      if (res.data.code == 200) {
-        message.success('删除成功')
-        refresh()
-      } else {
-        message.error(res.data.msg)
-      }
-      setSelectedDataKeys([])
-      setSelectedDataRows([])
-      setIsloading(false)
-    }).catch(err => {
-      console.log(err)
-      setIsloading(false)
-    })
+    deleteFiles({ destination: uploadPath, groupId, files })
+      .then((res) => {
+        // console.log(res.data)
+        if (res.data.code == 200) {
+          message.success('删除成功')
+          refresh()
+        } else {
+          message.error(res.data.msg)
+        }
+        setSelectedDataKeys([])
+        setSelectedDataRows([])
+        setIsloading(false)
+      })
+      .catch((err) => {
+        console.log(err)
+        setIsloading(false)
+      })
   }
   const fileRename = (file: FileInformation) => {
     // console.log('重命名', file)
@@ -152,26 +182,34 @@ const Directory: React.FC = () => {
   }
   const getSearchFiles = () => {
     setIsloading(true)
-    searchFiles({ groupId, fileName: query ? query : '' }).then(res => {
-      const result = res.data
-      if (result.code == 200) {
-        dispatch(setFileList(result.data))
-      } else {
-        message.error(result.msg)
-      }
-      setIsloading(false)
-    }).catch(err => {
-      console.log(err)
-      setIsloading(false)
-    })
+    searchFiles({ groupId, fileName: query ? query : '' })
+      .then((res) => {
+        const result = res.data
+        if (result.code == 200) {
+          dispatch(setFileList(result.data))
+        } else {
+          message.error(result.msg)
+        }
+        setIsloading(false)
+      })
+      .catch((err) => {
+        console.log(err)
+        setIsloading(false)
+      })
   }
   const fileRenameCheck = async (event: React.MouseEvent) => {
     event.stopPropagation()
     try {
       if (editingData) {
         setIsloading(true)
-        const params = { groupId, id: editingData.id, newName: editingData.directoryType ? '/' + editingName + '/' : editingName }
-        const res = editingData.directoryType ? await renameDirectory(params) : await renameFile(params)
+        const params = {
+          groupId,
+          id: editingData.id,
+          newName: editingData.directoryType ? '/' + editingName + '/' : editingName
+        }
+        const res = editingData.directoryType
+          ? await renameDirectory(params)
+          : await renameFile(params)
         const result = res.data
         if (result.code == 200) {
           message.success('重命名成功~')
@@ -215,6 +253,34 @@ const Directory: React.FC = () => {
   const refresh = () => {
     if (query) {
       getSearchFiles()
+    } else if (category === 'recycle') {
+      getRecycle({})
+        .then((res) => {
+          const result = res.data
+          if (result.code == 200) {
+            const list = result.data.map(
+              (item) =>
+                ({
+                  id: item.id,
+                  parentId: item.parentDirectoryId,
+                  name: item.fileName,
+                  uploadDate: new Date(item.uploadDate).toLocaleDateString().replaceAll('/', '-'),
+                  size: null,
+                  type: item.fileName.split('.').at(-1)!,
+                  icon: new URL('../../../assets/icon/rubbish.png', import.meta.url).href,
+                  directoryType: false,
+                  path: item.absolutePath
+                } as FileInformation)
+            )
+            console.log(list)
+            dispatch(setFileList(list))
+          } else {
+            message.error(result.msg)
+          }
+        })
+        .catch((err) => {
+          console.log(err)
+        })
     } else {
       dispatch(getFileList({ groupId, absolutePath: uploadPath, fileType: category }))
     }
@@ -236,7 +302,7 @@ const Directory: React.FC = () => {
     try {
       const res = await createShareLink({ password: sharePassword, files: selectedDataRows })
       const result = res.data
-      if(result.code == 200) {
+      if (result.code == 200) {
         message.success('分享成功')
         setShareLink(result.data)
         setSharePassword('')
@@ -253,8 +319,12 @@ const Directory: React.FC = () => {
       const link = shareLink.split('/').at(-1)!
       const res = await getShare({ link, password: sharePassword })
       const result = res.data
-      if(result.code == 200) {
-        const copyRes = await copyFiles({destination: uploadPath, groupId: -1, files: result.data})
+      if (result.code == 200) {
+        const copyRes = await copyFiles({
+          destination: uploadPath,
+          groupId: -1,
+          files: result.data
+        })
         copyRes.data.code == 200 && message.success('获取成功')
         setShareLink('')
         setSharePassword('')
@@ -264,6 +334,24 @@ const Directory: React.FC = () => {
     } catch (err) {
       console.log(err)
     }
+  }
+
+  const delRecycle = () => {
+    recover({ ids: selectedDataRows.map((item) => item.id) as number[] })
+      .then((res) => {
+        const result = res.data
+        if (result.code == 200) {
+          dispatch(setFileList(fileList.filter((item) => !selectedDataRows.includes(item))))
+          setSelectedDataKeys([])
+          setSelectedDataRows([])
+          message.success('恢复成功')
+        } else {
+          message.error(result.msg)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   }
 
   useEffect(() => {
@@ -277,18 +365,20 @@ const Directory: React.FC = () => {
     if (selectedDataRows.length == 1 && selectedDataRows[0].directoryType) {
       setFolderPreviewLoading(true)
       const folder = selectedDataRows[0]
-      getNowFileList({ groupId, absolutePath: folder.path }).then(res => {
-        const result = res.data
-        if (result.code == 200) {
-          setFolderPreviewList(result.data)
-        } else {
-          message.error('文件夹预览失败: ' + result.msg)
-        }
-        setFolderPreviewLoading(false)
-      }).catch(err => {
-        console.log(err)
-        setFolderPreviewLoading(false)
-      })
+      getNowFileList({ groupId, absolutePath: folder.path })
+        .then((res) => {
+          const result = res.data
+          if (result.code == 200) {
+            setFolderPreviewList(result.data)
+          } else {
+            message.error('文件夹预览失败: ' + result.msg)
+          }
+          setFolderPreviewLoading(false)
+        })
+        .catch((err) => {
+          console.log(err)
+          setFolderPreviewLoading(false)
+        })
     }
   }, [selectedDataRows])
 
@@ -310,7 +400,7 @@ const Directory: React.FC = () => {
           <span>移动</span>
         </div>
       )
-    },
+    }
     // {
     //   key: 'group',
     //   label: (
@@ -328,45 +418,56 @@ const Directory: React.FC = () => {
         // console.log(record, index)
         //利用事件冒泡，changeOperationType先触发
         switch (operationType) {
-          case 'share': fileShare()
+          case 'share':
+            fileShare()
             break
-          case 'download': fileDownload([record])
+          case 'download':
+            fileDownload([record])
             break
-          case 'delete': fileDelete([record])
+          case 'delete':
+            fileDelete([record])
             break
-          case 'rename': fileRename(record)
+          case 'rename':
+            fileRename(record)
             break
-          case 'copy': fileTransform([record], 'copy')
+          case 'copy':
+            fileTransform([record], 'copy')
             break
-          case 'move': fileTransform([record], 'move')
+          case 'move':
+            fileTransform([record], 'move')
             break
-          case 'group': fileGroup()
+          case 'group':
+            fileGroup()
             break
-          default: setSelectedDataRows([record]), setSelectedDataKeys([record.id])
+          default:
+            setSelectedDataRows([record]), setSelectedDataKeys([record.id])
         }
-        operationType = null//操作结束后取消操作
+        operationType = null //操作结束后取消操作
       },
       //鼠标右键事件
       onContextMenu: (event: React.MouseEvent) => {
         // console.log(event)
         // console.log(record, index)
         event.preventDefault()
+        if (category === 'recycle') {
+          return
+        }
         const element = rightMenu.current!
         element.style.display = 'block'
         element.style.top = event.clientY + 'px'
         element.style.left = event.clientX + 'px'
         window.onclick = () => {
-          element.style.display = 'none'//关闭
+          element.style.display = 'none' //关闭
         }
         if (!selectedDataKeys.includes(record.id)) {
-          setSelectedDataRows([record])//这里延迟满足要求，而且也需要渲染页面，就将就一下吧
+          setSelectedDataRows([record]) //这里延迟满足要求，而且也需要渲染页面，就将就一下吧
           setSelectedDataKeys([record.id])
         }
       },
       //双击行
       onDoubleClick: () => {
         setPath(record.path.slice(0, record.path.length - 1))
-      },
+      }
     }
   }
 
@@ -389,16 +490,43 @@ const Directory: React.FC = () => {
       render: (text, record) => {
         return (
           <div className='file-selection'>
-            <Image src={record.icon} preview={false} width={32} height={32} style={{ borderRadius: '6px', objectFit: 'cover' }} />
+            <Image
+              src={record.icon}
+              preview={false}
+              width={32}
+              height={32}
+              style={{ borderRadius: '6px', objectFit: 'cover' }}
+            />
             {editingData?.id == record.id ? (
               <span className='input'>
-                <Input autoFocus={true} id={record.id.toString()} onFocus={onEditFocus} value={editingName} onChange={onFilenameChange} maxLength={50} />
+                <Input
+                  autoFocus={true}
+                  id={record.id.toString()}
+                  onFocus={onEditFocus}
+                  value={editingName}
+                  onChange={onFilenameChange}
+                  maxLength={50}
+                />
                 <span className='button-group'>
-                  <Button className='button' type='primary' icon={<CheckOutlined />} onClick={fileRenameCheck}></Button>
-                  <Button className='button' type='primary' icon={<CloseOutlined />} onClick={fileRenameCancel}></Button>
+                  <Button
+                    className='button'
+                    type='primary'
+                    icon={<CheckOutlined />}
+                    onClick={fileRenameCheck}
+                  ></Button>
+                  <Button
+                    className='button'
+                    type='primary'
+                    icon={<CloseOutlined />}
+                    onClick={fileRenameCancel}
+                  ></Button>
                 </span>
               </span>
-            ) : <span className='text' onClick={fileEnter(record)}>{record.directoryType ? text.slice(1, text.length - 1) : text}</span>}
+            ) : (
+              <span className='text' onClick={fileEnter(record)}>
+                {record.directoryType ? text.slice(1, text.length - 1) : text}
+              </span>
+            )}
           </div>
         )
       },
@@ -410,22 +538,39 @@ const Directory: React.FC = () => {
       render: (text, record) => (
         <div className='date-selection'>
           <span className='info'>{text}</span>
-          <div className='button-group' style={{ display: editingData?.id == record.id ? 'none' : '' }}>
-            <ShareAltOutlined className='button' title='分享' onClick={changeOperation('share')} />
-            <DownloadOutlined className='button' title='下载' onClick={changeOperation('download')} />
-            <DeleteOutlined className='button' title='删除' onClick={changeOperation('delete')} />
-            <EditOutlined className='button' title='重命名' onClick={changeOperation('rename')} />
-            <Dropdown menu={{ items: dropdownItems }} placement='bottom' overlayStyle={{ width: '80px' }}>
-              <EllipsisOutlined className='button' />
-            </Dropdown>
-          </div>
+          {category !== 'recycle' ? (
+            <div
+              className='button-group'
+              style={{ display: editingData?.id == record.id ? 'none' : '' }}
+            >
+              <ShareAltOutlined
+                className='button'
+                title='分享'
+                onClick={changeOperation('share')}
+              />
+              <DownloadOutlined
+                className='button'
+                title='下载'
+                onClick={changeOperation('download')}
+              />
+              <DeleteOutlined className='button' title='删除' onClick={changeOperation('delete')} />
+              <EditOutlined className='button' title='重命名' onClick={changeOperation('rename')} />
+              <Dropdown
+                menu={{ items: dropdownItems }}
+                placement='bottom'
+                overlayStyle={{ width: '80px' }}
+              >
+                <EllipsisOutlined className='button' />
+              </Dropdown>
+            </div>
+          ) : null}
         </div>
       )
     },
     {
       title: '大小',
       dataIndex: 'size',
-      render: (text) => <span className='info'>{computedFileSize(text)}</span>,
+      render: (text) => <span className='info'>{computedFileSize(text)}</span>
     }
   ]
 
@@ -433,14 +578,21 @@ const Directory: React.FC = () => {
     return (
       <div className='list-item'>
         <div className='file-infomation'>
-          <Image src={item.icon} preview={false} width={32} style={{ height: '32px', borderRadius: '6px', objectFit: 'cover' }} />
-          <span className='text'>{item.directoryType ? item.name.slice(1, item.name.length - 1) : item.name}</span>
+          <Image
+            src={item.icon}
+            preview={false}
+            width={32}
+            style={{ height: '32px', borderRadius: '6px', objectFit: 'cover' }}
+          />
+          <span className='text'>
+            {item.directoryType ? item.name.slice(1, item.name.length - 1) : item.name}
+          </span>
         </div>
       </div>
     )
   }
 
-  const shareTabs: TabsProps['items']= [
+  const shareTabs: TabsProps['items'] = [
     {
       key: 'share',
       label: '分享文件',
@@ -448,14 +600,24 @@ const Directory: React.FC = () => {
         <div className='share-modal'>
           <div className='share-item'>
             <span className='label'>分享密码：</span>
-            <Input placeholder='输入分享密码' maxLength={8} value={sharePassword} onChange={(event) => setSharePassword(event.target.value)} />
-            <Button type='primary' onClick={createLink}>生成链接</Button>
+            <Input
+              placeholder='输入分享密码'
+              maxLength={8}
+              value={sharePassword}
+              onChange={(event) => setSharePassword(event.target.value)}
+            />
+            <Button type='primary' onClick={createLink}>
+              生成链接
+            </Button>
           </div>
-          {shareLink ? (<div className='share-link'>
-            <span>分享链接：</span>
-            <p>{shareLink}</p>
-            </div>) : null}
-        </div>)
+          {shareLink ? (
+            <div className='share-link'>
+              <span>分享链接：</span>
+              <p>{shareLink}</p>
+            </div>
+          ) : null}
+        </div>
+      )
     },
     {
       key: 'get',
@@ -463,13 +625,25 @@ const Directory: React.FC = () => {
       children: (
         <div className='share-modal'>
           <div className='share-item'>
-          <span className='label'>分享链接：</span>
-          <Input placeholder='输入分享链接' maxLength={100} value={shareLink} onChange={(event) => setShareLink(event.target.value)} />
+            <span className='label'>分享链接：</span>
+            <Input
+              placeholder='输入分享链接'
+              maxLength={100}
+              value={shareLink}
+              onChange={(event) => setShareLink(event.target.value)}
+            />
           </div>
           <div className='share-item'>
             <span className='label'>分享密码：</span>
-            <Input placeholder='输入分享密码' maxLength={8} value={sharePassword} onChange={(event) => setSharePassword(event.target.value)} />
-            <Button type='primary' onClick={getFileByShare}>获取文件</Button>
+            <Input
+              placeholder='输入分享密码'
+              maxLength={8}
+              value={sharePassword}
+              onChange={(event) => setSharePassword(event.target.value)}
+            />
+            <Button type='primary' onClick={getFileByShare}>
+              获取文件
+            </Button>
           </div>
         </div>
       )
@@ -479,41 +653,86 @@ const Directory: React.FC = () => {
   return (
     <div className='directory'>
       <div className='content'>
-        <FileManage {...{ uploader, selectedDataRows, fileDownload, fileDelete, fileRename, fileTransform, fileShare }} />
+        {category === 'recycle' ? (
+          <div className='recycle-title'>
+            <Button type='primary' shape='round' onClick={delRecycle}>
+              恢复
+            </Button>
+            <Button type='primary' shape='round' onClick={delRecycle}>
+              删除
+            </Button>
+          </div>
+        ) : (
+          <FileManage
+            {...{
+              uploader,
+              selectedDataRows,
+              fileDownload,
+              fileDelete,
+              fileRename,
+              fileTransform,
+              fileShare
+            }}
+          />
+        )}
         <div className='title'>
-          {path == '/' ? <h4>{query ? '搜索: ' + query : '全部文件'}</h4> : (
+          {path == '/' ? (
+            <h4>{query ? '搜索: ' + query : '全部文件'}</h4>
+          ) : (
             <div className='path'>
-              <div className='back' onClick={pathBack}>返回上一级</div>
+              <div className='back' onClick={pathBack}>
+                返回上一级
+              </div>
               <div className='path-unit'>
                 <span className='sign'>|</span>
-                <span className='text' onClick={pathTo('/')}>全部文件</span>
+                <span className='text' onClick={pathTo('/')}>
+                  全部文件
+                </span>
               </div>
-              {path.split('/').filter(item => item).map((item, index, arr) => {
-                // console.log(item, index)
-                if (arr.length > 3 && index < arr.length - 3) {
-                  return index ? '' : (
-                    <div className='path-unit' key='...'>
-                      <span className='sign' style={{ fontSize: '18px' }}>&gt;</span>
-                      <span className='text' style={{ color: '#818999', fontSize: '16px' }}>...</span>
+              {path
+                .split('/')
+                .filter((item) => item)
+                .map((item, index, arr) => {
+                  // console.log(item, index)
+                  if (arr.length > 3 && index < arr.length - 3) {
+                    return index ? (
+                      ''
+                    ) : (
+                      <div className='path-unit' key='...'>
+                        <span className='sign' style={{ fontSize: '18px' }}>
+                          &gt;
+                        </span>
+                        <span className='text' style={{ color: '#818999', fontSize: '16px' }}>
+                          ...
+                        </span>
+                      </div>
+                    )
+                  }
+                  let itemPath = ''
+                  for (let i = 0; i <= index; i++) {
+                    itemPath += '/' + arr[i]
+                  }
+                  // console.log(itemPath)
+                  return (
+                    <div className='path-unit' key={itemPath}>
+                      <span className='sign' style={{ fontSize: '18px' }}>
+                        &gt;
+                      </span>
+                      <span
+                        className='text'
+                        style={{ color: index == arr.length - 1 ? '#818999' : '#06a7ff' }}
+                        onClick={pathTo(itemPath)}
+                      >
+                        {item}
+                      </span>
                     </div>
                   )
-                }
-                let itemPath = ''
-                for (let i = 0; i <= index; i++) {
-                  itemPath += '/' + arr[i]
-                }
-                // console.log(itemPath)
-                return (
-                  <div className='path-unit' key={itemPath}>
-                    <span className='sign' style={{ fontSize: '18px' }}>&gt;</span>
-                    <span className='text' style={{ color: index == arr.length - 1 ? '#818999' : '#06a7ff' }} onClick={pathTo(itemPath)}>{item}</span>
-                  </div>
-                )
-              })}
+                })}
             </div>
           )}
           <span style={{ display: fold ? 'flex' : 'none' }} onClick={() => setFold(false)}>
-            <LeftOutlined className='icon' />展开
+            <LeftOutlined className='icon' />
+            展开
           </span>
         </div>
         <div className='table'>
@@ -525,10 +744,18 @@ const Directory: React.FC = () => {
             pagination={false}
             onRow={rowOption}
             scroll={{ y: 520 }}
-            loading={{ indicator: <LoadingOutlined />, spinning: loadingStatus == 'loading' || isLoading, size: 'large' }}
+            loading={{
+              indicator: <LoadingOutlined />,
+              spinning: loadingStatus == 'loading' || isLoading,
+              size: 'large'
+            }}
           />
           <div className='right-menu' ref={rightMenu}>
-            <div className='menu-item' onClick={fileOpen} style={{ display: selectedDataKeys.length <= 1 ? 'block' : 'none' }}>
+            <div
+              className='menu-item'
+              onClick={fileOpen}
+              style={{ display: selectedDataKeys.length <= 1 ? 'block' : 'none' }}
+            >
               <span>打开</span>
             </div>
             <div className='menu-item' onClick={() => fileDownload(selectedDataRows)}>
@@ -551,7 +778,11 @@ const Directory: React.FC = () => {
               <DragOutlined />
               <span>移动</span>
             </div>
-            <div className='menu-item' onClick={() => fileRename(selectedDataRows[0])} style={{ display: selectedDataKeys.length <= 1 ? 'block' : 'none' }}>
+            <div
+              className='menu-item'
+              onClick={() => fileRename(selectedDataRows[0])}
+              style={{ display: selectedDataKeys.length <= 1 ? 'block' : 'none' }}
+            >
               <EditOutlined />
               <span>重命名</span>
             </div>
@@ -560,55 +791,105 @@ const Directory: React.FC = () => {
               <span>删除</span>
             </div>
           </div>
-          <FileTransform {...{ transformOpen, setTransformOpen, transformType, setTransformType, transformFiles }} />
+          <FileTransform
+            {...{
+              transformOpen,
+              setTransformOpen,
+              transformType,
+              setTransformType,
+              transformFiles
+            }}
+          />
         </div>
       </div>
       <div className='preview' style={{ display: fold ? 'none' : 'block' }}>
         <div className='search-wrapper'>
-          <Input.Search placeholder="搜索我的文件" onSearch={fileSearch} />
+          <Input.Search placeholder='搜索我的文件' onSearch={fileSearch} />
         </div>
         <div className='title'>
-          {selectedDataKeys.length > 1 ? <h4>{`共选中${selectedDataKeys.length}个文件`}</h4> : <h4>{selectedDataRows[0]?.directoryType ? '文件夹内容' : '文件详情'}</h4>}
-          <span onClick={() => setFold(true)}><RightOutlined className='icon' />收起</span>
+          {selectedDataKeys.length > 1 ? (
+            <h4>{`共选中${selectedDataKeys.length}个文件`}</h4>
+          ) : (
+            <h4>{selectedDataRows[0]?.directoryType ? '文件夹内容' : '文件详情'}</h4>
+          )}
+          <span onClick={() => setFold(true)}>
+            <RightOutlined className='icon' />
+            收起
+          </span>
         </div>
         <div className='detail-wrapper'>
           {selectedDataKeys.length == 0 ? (
             <div className='empty'>
-              <Image src={new URL('../../../assets/img/empty.png', import.meta.url).href} preview={false}></Image>
+              <Image
+                src={new URL('../../../assets/img/empty.png', import.meta.url).href}
+                preview={false}
+              ></Image>
               <p>选中文件/文件夹，查看详情</p>
             </div>
-          ) : (selectedDataKeys.length == 1 && selectedDataRows[0].directoryType ? (
+          ) : selectedDataKeys.length == 1 && selectedDataRows[0].directoryType ? (
             <div className='folder-preview'>
               <div className='preview-title'>
                 <Image src={selectedDataRows[0].icon} preview={false} width={32} />
-                <span className='text'>{selectedDataRows[0].name.slice(1, selectedDataRows[0].name.length - 1)}</span>
+                <span className='text'>
+                  {selectedDataRows[0].name.slice(1, selectedDataRows[0].name.length - 1)}
+                </span>
               </div>
               <List
                 style={{ height: 500, overflowY: 'scroll' }}
                 dataSource={folderPreviewList}
                 renderItem={folderPreviewItemRender}
-                loading={{ indicator: <LoadingOutlined />, spinning: folderPreviewLoading, size: 'large' }}
+                loading={{
+                  indicator: <LoadingOutlined />,
+                  spinning: folderPreviewLoading,
+                  size: 'large'
+                }}
               />
             </div>
           ) : (
             <div className='detail'>
               <div className='image-box'>
-                <Image src={selectedDataKeys.length == 1 ? selectedDataRows[0].icon : new URL('../../../assets/icon/folder.png', import.meta.url).href} preview={false} style={{ borderRadius: '9.5px' }} />
+                <Image
+                  src={
+                    selectedDataKeys.length == 1
+                      ? selectedDataRows[0].icon
+                      : new URL('../../../assets/icon/folder.png', import.meta.url).href
+                  }
+                  preview={false}
+                  style={{ borderRadius: '9.5px' }}
+                />
               </div>
-              <div className='information' style={{ display: selectedDataKeys.length == 1 ? 'block' : 'none' }}>
-                <h4>{selectedDataRows[0].directoryType ? selectedDataRows[0].name.slice(1, selectedDataRows[0].name.length - 1) : selectedDataRows[0].name}</h4>
+              <div
+                className='information'
+                style={{ display: selectedDataKeys.length == 1 ? 'block' : 'none' }}
+              >
+                <h4>
+                  {selectedDataRows[0].directoryType
+                    ? selectedDataRows[0].name.slice(1, selectedDataRows[0].name.length - 1)
+                    : selectedDataRows[0].name}
+                </h4>
                 <ul>
                   <li>创建时间：{selectedDataRows[0].uploadDate}</li>
                   <li>文件大小：{computedFileSize(selectedDataRows[0].size)}</li>
-                  <li>所在目录：{selectedDataRows[0].path == '/' ? selectedDataRows[0].path : selectedDataRows[0].path.slice(0, selectedDataRows[0].path.length - 1)}</li>
+                  <li>
+                    所在目录：
+                    {selectedDataRows[0].path == '/'
+                      ? selectedDataRows[0].path
+                      : selectedDataRows[0].path.slice(0, selectedDataRows[0].path.length - 1)}
+                  </li>
                 </ul>
               </div>
             </div>
-          )
           )}
         </div>
       </div>
-      <Modal title={'文件分享'} open={showShareModal} onCancel={onShareModalCancel} onOk={onShareModalCancel} okText='确认' cancelText='取消'>
+      <Modal
+        title={'文件分享'}
+        open={showShareModal}
+        onCancel={onShareModalCancel}
+        onOk={onShareModalCancel}
+        okText='确认'
+        cancelText='取消'
+      >
         <Tabs activeKey={shareTab} items={shareTabs} onChange={onShareTabChange} />
       </Modal>
     </div>
@@ -618,7 +899,7 @@ const Directory: React.FC = () => {
 type OperationType = 'share' | 'download' | 'delete' | 'rename' | 'copy' | 'move' | 'group' | null
 
 interface ContextType {
-  uploader: any,
+  uploader: any
   groupId: number
 }
 

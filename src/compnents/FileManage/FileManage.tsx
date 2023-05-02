@@ -79,9 +79,9 @@ const FileManage: React.FC<PropsType> = (props) => {
             <div className='button'>
               <button onClick={createDir} disabled={loadingStatus == 'loading'}><FolderAddOutlined className='icon' />新建文件夹</button>
             </div>
-            <div className='button'>
+            {/* <div className='button'>
               <button><FileAddOutlined className='icon' />新建文本文档</button>
-            </div>
+            </div> */}
           </div>
           <Modal
             open={isModalOpen}
