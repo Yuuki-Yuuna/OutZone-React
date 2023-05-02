@@ -167,8 +167,8 @@ const Navigation: React.FC<PropsType> = (props) => {
         <div className='title'>
           <p>传输列表</p>
           <h2>
-            上传完成（{uploadList.filter((file: any) => file.progress() == 1).length}/
-            {uploadList.length}）
+            上传完成（
+            {uploadList.filter((file: any) => file.progress() == 1).length}/{uploadList.length}）
           </h2>
         </div>
         <div className='content'>
@@ -191,7 +191,9 @@ const Navigation: React.FC<PropsType> = (props) => {
                       strokeWidth={3}
                       strokeColor='#009dff'
                       status={file.currentSpeed > 0 ? 'active' : 'normal'}
-                      style={{ display: file.progress() == 1 ? 'none' : 'block' }}
+                      style={{
+                        display: file.progress() == 1 ? 'none' : 'block'
+                      }}
                     />
                     <div className='status'>
                       <div className='size'>{computedFileSize(file.size)}</div>
@@ -242,7 +244,7 @@ const Navigation: React.FC<PropsType> = (props) => {
   const dropdownItems: MenuProps['items'] = [
     {
       key: 'plant',
-      label: <div>云平台</div>
+      label: <div onClick={() => navigate('/cloud-platform')}>云平台</div>
     },
     {
       key: 'profile',

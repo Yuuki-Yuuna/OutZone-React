@@ -1,0 +1,56 @@
+.forHeight {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: no-repeat url(/logo.png) center/80%;
+}
+
+.navigation {
+  background: #fefefe;
+}
+
+.container {
+  height: 100%;
+  flex-grow: 1;
+  background: rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(1.5em);
+}
+
+main {
+  max-width: 800px;
+  margin: auto;
+  padding: 2em 1em;
+}
+
+.list {
+  .list-item {
+    transition: all 0.15s;
+    padding: 1em;
+    cursor: pointer;
+    &:hover {
+      background: rgba(0, 0, 0, 0.1);
+    }
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.card {
+  border: solid 1px #f0f0f0;
+  border-radius: 0.5em;
+  overflow: hidden;
+  background: #fefefe;
+
+  .card-header {
+    padding: 1em;
+    border-bottom: solid 1px #f0f0f0;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .card-body {
+    overflow: hidden;
+  }
+}

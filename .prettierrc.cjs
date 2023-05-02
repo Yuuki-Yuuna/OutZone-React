@@ -1,6 +1,6 @@
 // eslint-disable-next-line
 module.exports = {
-  printWidth: 80,
+  printWidth: 100,
   tabWidth: 2,
   useTabs: false,
   semi: false,

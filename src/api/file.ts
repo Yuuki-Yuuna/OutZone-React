@@ -177,7 +177,8 @@ export interface GetRecycleResponse extends ResponseData {
   }[]
 }
 
-interface ResponseData {
+export interface ResponseData<Data = any> {
   code: number
   msg: string
+  data: Data
 }

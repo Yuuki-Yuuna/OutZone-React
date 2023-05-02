@@ -8,6 +8,7 @@ const Home = lazy(() => import('@/views/Home/Home'))
 const Directory = lazy(() => import('@/views/Home/Directory/Directory'))
 const PictureWall = lazy(() => import('@/views/Home/PictureWall/PictureWall'))
 const Mobile = lazy(() => import('@/views/Mobile/Mobile'))
+const Jupyter = lazy(() => import('@/views/Jupyter/Jupyter'))
 const Intro = lazy(() => import('@/views/Intro/Intro'))
 
 export default createBrowserRouter([
@@ -32,7 +33,7 @@ export default createBrowserRouter([
     ),
     children: [
       {
-        path: '',//默认二级路由
+        path: '', //默认二级路由
         element: <Navigate to='directory/all' />
       },
       {
@@ -48,6 +49,10 @@ export default createBrowserRouter([
   {
     path: '/intro',
     element: <Intro />
+  },
+  {
+    path: '/cloud-platform',
+    element: <Jupyter />
   }
   // {
   //   path: '/mobile',
