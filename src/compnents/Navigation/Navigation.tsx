@@ -1,13 +1,36 @@
 import React, { useEffect, useRef, useState } from 'react'
 import './Navigation.scss'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { Image, Avatar, Space, Dropdown, Drawer, Progress, Menu, Badge, message } from 'antd'
-import { SwapOutlined, UserOutlined, BellOutlined, FolderOutlined, ArrowUpOutlined, PauseOutlined, CloseOutlined } from '@ant-design/icons'
+import {
+  Image,
+  Avatar,
+  Space,
+  Dropdown,
+  Drawer,
+  Progress,
+  Menu,
+  Badge,
+  message,
+  Modal,
+  Form,
+  Input,
+  Button
+} from 'antd'
+import {
+  SwapOutlined,
+  UserOutlined,
+  BellOutlined,
+  FolderOutlined,
+  ArrowUpOutlined,
+  PauseOutlined,
+  CloseOutlined,
+  PlusOutlined
+} from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { checkFileType, computedFileSize } from '@/util/file'
 import { useStoreDispatch, useStoreSelector } from '@/store'
 import { getUserInformation } from '@/store/features/userSlice'
-import { userLogout } from '@/api/user'
+import { changeIcon, changePassword, userLogout } from '@/api/user'
 import { removeToken } from '@/util/secret'
 
 const Navigation: React.FC<PropsType> = (props) => {
@@ -18,8 +41,53 @@ const Navigation: React.FC<PropsType> = (props) => {
   const { uploadList, setUploadList } = props
   const [search, setSearch] = useSearchParams()
   const dispatch = useStoreDispatch()
-  const userInfo = useStoreSelector(state => state.user.userInfo)
-  const userStatus = useStoreSelector(state => state.user.status)
+  const userInfo = useStoreSelector((state) => state.user.userInfo)
+  const userStatus = useStoreSelector((state) => state.user.status)
+  const [profileModal, setProfileModal] = useState(false)
+  const [profileForm] = Form.useForm()
+  const [profileAvatar, setProfileAvatar] = useState<File | null>(null)
+
+  const validateProfile = async () => {
+    try {
+      await profileForm.validateFields()
+      profileForm.submit()
+    } catch {}
+  }
+
+  const onFileAdd = async (event: React.ChangeEvent) => {
+    const target = event.target as HTMLInputElement
+    const file = target.files![0]
+    setProfileAvatar(file)
+    target.setAttribute('value', '')
+    try {
+      const res = await changeIcon({ file })
+      const result = res.data
+      if (result.code == 200) {
+        message.success('修改成功')
+      } else {
+        message.error(result.msg)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
+
+  const updateProfile = async (info: { password: string; confirmPassword: string }) => {
+    try {
+      const { password } = info
+      const res = await changePassword({ password })
+      const result = res.data
+      if (result.code == 200) {
+        message.success('修改成功')
+        setProfileModal(false)
+        profileForm.resetFields()
+      } else {
+        message.error(result.msg)
+      }
+    } catch (err) {
+      console.log(err)
+    }
+  }
 
   const openDrawer = () => {
     setDrawerOpen(true)
@@ -46,34 +114,39 @@ const Navigation: React.FC<PropsType> = (props) => {
   const uploadFileCancel = (file: any) => {
     return () => {
       file.cancel()
-      setUploadList((preUploadList: any) => preUploadList.filter((item: any) => file.uniqueIdentifier != item.uniqueIdentifier))//要渲染
+      setUploadList((preUploadList: any) =>
+        preUploadList.filter((item: any) => file.uniqueIdentifier != item.uniqueIdentifier)
+      ) //要渲染
     }
   }
   const uploadFileToPath = (file: any) => {
     return () => {
-      const filePath = file.relativePath == '/' ? '/' : file.relativePath.slice(0, file.relativePath.length - 1)
+      const filePath =
+        file.relativePath == '/' ? '/' : file.relativePath.slice(0, file.relativePath.length - 1)
       search.set('path', filePath)
       setSearch(search)
     }
   }
   const logout = () => {
-    userLogout().then(res => {
-      const result = res.data
-      if (result.code == 200) {
-        removeToken()
-        message.success('退出登录~')
-        navigate('/login', { replace: true })
-      } else {
-        message.error(result.msg)
-      }
-    }).catch(err => {
-      console.log(err)
-    })
+    userLogout()
+      .then((res) => {
+        const result = res.data
+        if (result.code == 200) {
+          removeToken()
+          message.success('退出登录~')
+          navigate('/login', { replace: true })
+        } else {
+          message.error(result.msg)
+        }
+      })
+      .catch((err) => {
+        console.log(err)
+      })
   }
 
   useEffect(() => {
     dispatch(getUserInformation())
-  }, [])
+  }, [profileAvatar])
 
   useEffect(() => {
     if (userStatus == 'overdue') {
@@ -93,12 +166,18 @@ const Navigation: React.FC<PropsType> = (props) => {
       <div className='upload'>
         <div className='title'>
           <p>传输列表</p>
-          <h2>上传完成（{uploadList.filter((file: any) => file.progress() == 1).length}/{uploadList.length}）</h2>
+          <h2>
+            上传完成（{uploadList.filter((file: any) => file.progress() == 1).length}/
+            {uploadList.length}）
+          </h2>
         </div>
         <div className='content'>
           {uploadList.map((file: any) => {
             // console.log(file)
-            const src = new URL(`../../assets/icon/${checkFileType(file.name)}.png`, import.meta.url).href
+            const src = new URL(
+              `../../assets/icon/${checkFileType(file.name)}.png`,
+              import.meta.url
+            ).href
 
             return (
               <div className='file' key={file.timestamp}>
@@ -116,15 +195,39 @@ const Navigation: React.FC<PropsType> = (props) => {
                     />
                     <div className='status'>
                       <div className='size'>{computedFileSize(file.size)}</div>
-                      {file.isReady ? <div className='speed'>{file.progress() == 1 ? '' : computedFileSize(file.currentSpeed) + '/s'}</div> : <div className='waiting'>等待中</div>}
+                      {file.isReady ? (
+                        <div className='speed'>
+                          {file.progress() == 1 ? '' : computedFileSize(file.currentSpeed) + '/s'}
+                        </div>
+                      ) : (
+                        <div className='waiting'>等待中</div>
+                      )}
                     </div>
                   </div>
                 </div>
                 <div className='buttons'>
-                  {file.isComplete() ? <div className='button' onClick={uploadFileToPath(file)}><FolderOutlined className='icon' /></div> : (
+                  {file.isComplete() ? (
+                    <div className='button' onClick={uploadFileToPath(file)}>
+                      <FolderOutlined className='icon' />
+                    </div>
+                  ) : (
                     <Space>
-                      {file.isUploading() ? <div className='button' onClick={uploadFilePause(file)}><PauseOutlined className='icon' /></div> : <div className='button' onClick={uploadFileResume(file)} style={{ display: file.isReady ? 'flex' : 'none' }}><ArrowUpOutlined className='icon' /></div>}
-                      <div className='button'><CloseOutlined className='icon' onClick={uploadFileCancel(file)} /></div>
+                      {file.isUploading() ? (
+                        <div className='button' onClick={uploadFilePause(file)}>
+                          <PauseOutlined className='icon' />
+                        </div>
+                      ) : (
+                        <div
+                          className='button'
+                          onClick={uploadFileResume(file)}
+                          style={{ display: file.isReady ? 'flex' : 'none' }}
+                        >
+                          <ArrowUpOutlined className='icon' />
+                        </div>
+                      )}
+                      <div className='button'>
+                        <CloseOutlined className='icon' onClick={uploadFileCancel(file)} />
+                      </div>
                     </Space>
                   )}
                 </div>
@@ -137,6 +240,14 @@ const Navigation: React.FC<PropsType> = (props) => {
     )
   }
   const dropdownItems: MenuProps['items'] = [
+    {
+      key: 'plant',
+      label: <div>云平台</div>
+    },
+    {
+      key: 'profile',
+      label: <div onClick={() => setProfileModal(true)}>修改信息</div>
+    },
     {
       key: 'logout',
       label: <div onClick={logout}>退出登录</div>
@@ -177,7 +288,10 @@ const Navigation: React.FC<PropsType> = (props) => {
         </Dropdown>
         <div className='tools'>
           <Space>
-            <Badge count={uploadList.filter((file: any) => file.progress() < 1).length} size='small'>
+            <Badge
+              count={uploadList.filter((file: any) => file.progress() < 1).length}
+              size='small'
+            >
               <Dropdown
                 dropdownRender={uploadDropdownRender}
                 placement='bottomRight'
@@ -196,26 +310,114 @@ const Navigation: React.FC<PropsType> = (props) => {
         </div>
       </div>
       <div className='profile-mobile'>
-        <Avatar icon={<UserOutlined />} src={'/src/assets/avatar.jpg'} size={42} onClick={openDrawer} />
+        <Avatar
+          icon={<UserOutlined />}
+          src={'/src/assets/avatar.jpg'}
+          size={42}
+          onClick={openDrawer}
+        />
       </div>
-      <Drawer open={drawerOpen} closable={false} onClose={closeDrawer} width={'80%'} bodyStyle={{ padding: 0 }}>
+      <Drawer
+        open={drawerOpen}
+        closable={false}
+        onClose={closeDrawer}
+        width={'80%'}
+        bodyStyle={{ padding: 0 }}
+      >
         <div className='drawer'>
           <div className='drawer-profile'>
-            <Avatar icon={<UserOutlined />} src={'/src/assets/avatar.jpg'} size={50} onClick={openDrawer} />
+            <Avatar
+              icon={<UserOutlined />}
+              src={'/src/assets/avatar.jpg'}
+              size={50}
+              onClick={openDrawer}
+            />
             <div className='drawer-info'>
               <h2>{'admin'}</h2>
               <Progress percent={30} showInfo={false} strokeColor='#06a7ff' />
               <div>
-                <span style={{ marginRight: '30px' }}>{'20.00G'}/{'2T'}</span>
+                <span style={{ marginRight: '30px' }}>
+                  {'20.00G'}/{'2T'}
+                </span>
                 <span>{'30.00%'}</span>
               </div>
             </div>
           </div>
-          <Menu
-            items={menuItems}
-          />
+          <Menu items={menuItems} />
         </div>
       </Drawer>
+      <Modal
+        open={profileModal}
+        onCancel={() => setProfileModal(false)}
+        title='个人信息'
+        onOk={validateProfile}
+      >
+        <Form
+          className='prifile-modal'
+          form={profileForm}
+          onFinish={updateProfile}
+          validateTrigger='onSubmit'
+        >
+          <div className='avatar'>
+            <Image
+              width={80}
+              height={80}
+              src={profileAvatar ? URL.createObjectURL(profileAvatar) : userInfo?.icon}
+              preview={false}
+              style={{ objectFit: 'cover' }}
+            />
+            <Button size='small' shape='round' style={{ display: 'block', margin: '12px auto' }}>
+              <label>
+                <Input
+                  type='file'
+                  accept='.png,.jpg'
+                  style={{ display: 'none' }}
+                  onChange={onFileAdd}
+                />
+                更改
+              </label>
+            </Button>
+          </div>
+
+          <div>
+            <Form.Item
+              label='新密码'
+              name='password'
+              rules={[
+                {
+                  required: true,
+                  type: 'string',
+                  min: 6,
+                  max: 20,
+                  message: '密码应在6-20位间'
+                }
+              ]}
+            >
+              <Input.Password maxLength={20} />
+            </Form.Item>
+            <Form.Item
+              label='确认密码'
+              name='confirmPassword'
+              rules={[
+                {
+                  required: true,
+                  message: '请输入确认密码'
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve()
+                    }
+                    return Promise.reject(new Error('两次密码不一致'))
+                  }
+                })
+              ]}
+            >
+              <Input.Password maxLength={20} />
+            </Form.Item>
+          </div>
+        </Form>
+      </Modal>
     </div>
   )
 }

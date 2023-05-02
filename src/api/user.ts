@@ -27,6 +27,16 @@ export const getCapacity = () => {
   return request.get<GetCapacityData>('/user/getCapacity')
 }
 
+export const changePassword = (params: { password: string }) => {
+  return request.post('/user/changePassword', params)
+}
+
+export const changeIcon = (params: { file: File }) => {
+  const formData = new FormData()
+  formData.append('file', params.file)
+  return request.post('/user/changeUserIcon', formData)
+}
+
 export interface GetRegisterCodeParams {
   username: string
   mailAddress: string

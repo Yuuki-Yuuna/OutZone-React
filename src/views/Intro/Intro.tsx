@@ -1,5 +1,5 @@
 import { Button, Layout } from 'antd'
-import { Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import './Intro.scss'
 import SectionOne from './SectionOne'
 import SectionTwo from './SectionTwo'
@@ -7,6 +7,8 @@ import SectionTwo from './SectionTwo'
 const { Header, Footer, Content } = Layout
 
 export default function Intro() {
+  const navigate = useNavigate()
+
   return (
     <Layout className='intro'>
       <header>
@@ -17,15 +19,17 @@ export default function Intro() {
           }}
         >
           <div style={{ display: 'flex', gap: '1em' }}>
-            <div className='header-logo'>
+            {/* <div className='header-logo'>
               <img src='/logo.svg' alt='logo' width={32} />
-            </div>
-            <span className='header-link'>首页</span>
-            <span className='header-link'>中转站</span>
-            <span className='header-link'>开放平台</span>
+            </div> */}
+            {/* <span className='header-link'>首页</span> */}
+            {/* <span className='header-link'>中转站</span> */}
+            {/* <span className='header-link'>开放平台</span> */}
           </div>
           <div style={{ display: 'flex', gap: '1em' }}>
-            <span className='header-link'>登录 / 注册</span>
+            <span className='header-link' onClick={() => navigate('/login')}>
+              登录 / 注册
+            </span>
           </div>
         </div>
 

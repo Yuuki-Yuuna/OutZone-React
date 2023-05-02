@@ -121,7 +121,8 @@
             justify-content: space-between;
             font-size: 12px;
 
-            .size, .waiting {
+            .size,
+            .waiting {
               color: #878c9c;
             }
 
@@ -164,7 +165,6 @@
 }
 
 .drawer {
-
   .drawer-profile {
     display: flex;
     justify-content: center;
@@ -196,4 +196,14 @@
       margin-right: 12px;
     }
   }
+}
+
+.prifile-modal {
+  display: flex;
+  align-items: center;
+  gap: 60px;
+  margin: 0 20px;
+
+  // .avatar {
+  // }
 }
