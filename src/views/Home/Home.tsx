@@ -40,6 +40,10 @@ const Home: React.FC = () => {
   const userInfo = useStoreSelector(state => state.user.userInfo)
   const [cloudStorage, setCloudStorage] = useState<CloudStorage | null>(null)
 
+  useEffect(() => {
+    document.title = '首页 | outZone'
+  }, [])
+
   // 添加单个文件
   uploader.on('fileAdded', (uploadFile: any) => {
     // console.log(uploadFile)

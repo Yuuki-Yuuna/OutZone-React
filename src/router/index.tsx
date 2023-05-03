@@ -14,7 +14,7 @@ const Intro = lazy(() => import('@/views/Intro/Intro'))
 export default createBrowserRouter([
   {
     path: '/',
-    element: <Navigate to='/home' />
+    element: <Navigate to='/intro' />
   },
   {
     path: '/login',
@@ -26,11 +26,7 @@ export default createBrowserRouter([
   },
   {
     path: '/home',
-    element: (
-      <RouteBefore to='/home'>
-        <Home />
-      </RouteBefore>
-    ),
+    element: <Home />,
     children: [
       {
         path: '', //默认二级路由

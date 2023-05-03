@@ -3,9 +3,14 @@ import './styles.scss'
 import { useNavigate } from 'react-router-dom'
 import { Image } from 'antd'
 import JupyterList from './List'
+import { useEffect } from 'react'
 
 const Jupyter: React.FC<{}> = (props) => {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    document.title = '云平台 | outZone'
+  }, [])
 
   return (
     <div className='forHeight'>
