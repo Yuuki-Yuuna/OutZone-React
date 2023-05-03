@@ -10,6 +10,7 @@ const PictureWall = lazy(() => import('@/views/Home/PictureWall/PictureWall'))
 const Mobile = lazy(() => import('@/views/Mobile/Mobile'))
 const Jupyter = lazy(() => import('@/views/Jupyter/Jupyter'))
 const Intro = lazy(() => import('@/views/Intro/Intro'))
+const Docs = lazy(() => import('@/views/Docs/Docs'))
 
 export default createBrowserRouter([
   {
@@ -49,7 +50,8 @@ export default createBrowserRouter([
   {
     path: '/cloud-platform',
     element: <Jupyter />
-  }
+  },
+  { path: '/docs', element: <Docs /> }
   // {
   //   path: '/mobile',
   //   element: (

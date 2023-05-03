@@ -22,7 +22,12 @@ export default function Intro() {
             <div className='header-logo'>
               <img src='/logo.png' alt='logo' width={100} />
             </div>
-            {/* <span className='header-link'>首页</span> */}
+            <span className='header-link'>
+              <Link to='/'>首页</Link>
+            </span>
+            <span className='header-link'>
+              <Link to='/docs'>文档</Link>
+            </span>
             {/* <span className='header-link'>中转站</span> */}
             {/* <span className='header-link'>开放平台</span> */}
           </div>
