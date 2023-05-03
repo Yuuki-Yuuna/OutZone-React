@@ -15,6 +15,7 @@ export default function ListItem({
     <>
       <div className='list-item'>
         <a
+          target='_blank'
           href={'http://file.re1ife.top/api/machine/' + machine.id}
           style={{
             flexGrow: '1',
