@@ -12,8 +12,8 @@
 .container {
   height: 100%;
   flex-grow: 1;
-  background: rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(1.5em);
+  background: rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(2em);
 }
 
 main {

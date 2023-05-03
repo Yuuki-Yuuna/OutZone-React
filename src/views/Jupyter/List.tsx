@@ -1,14 +1,16 @@
-import { Button, Empty, Modal, Popconfirm, Skeleton, Space, message } from 'antd'
+import { Button, Empty, Input, Modal, Skeleton, Space, message } from 'antd'
 import './styles.scss'
 import { useEffect, useState } from 'react'
 import * as api from './api'
 import type { MachineInfo } from './api'
+import ListItem from './ListItem'
 
 export default function List() {
   const [messageApi, contextHolder] = message.useMessage()
   // 新建窗口
   const [open, setOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
+  const [machineName, setMachineName] = useState('')
   // machine数组，为空则显示加载态
   const [machinesData, setMachineData] = useState<MachineInfo[] | null>(null)
 
@@ -41,32 +43,59 @@ export default function List() {
 
   // 点击创建
   const handleCreateMachine = () => {
+    if (machineName.length === 0) {
+      message.error('名称为空！')
+      return
+    }
     setConfirmLoading(true)
     api
-      .createMachine()
+      .createMachine({ name: machineName })
       .then((res) => res.data)
       .then((data) => {
         setConfirmLoading(false)
         setOpen(false)
         messageApi.info(data.msg)
       })
+      .then(() => {
+        // 重新加载
+        loadMachine()
+      })
   }
   // 点击删除
-  const handleDelete = async (machine: MachineInfo) => {}
+  const handleDelete = async (machine: MachineInfo) => {
+    const data = await api.deleteMachine({ id: machine.id }).then((res) => res.data)
+    message.info(data.msg)
+    // 重新加载
+    loadMachine()
+  }
+  const handleStop = async (machine: MachineInfo) => {
+    // TODO: fake
+    await new Promise((r) => setTimeout(r, 1000))
+    messageApi.success('已关闭')
+    // 重新加载
+    loadMachine()
+  }
 
   const CreateMachineButton = () => (
-    <>
+    <div>
       <Button
         type='primary'
         onClick={() => {
           // 打开新建窗口
+          setMachineName('')
           setOpen(true)
         }}
       >
         创建
       </Button>
+    </div>
+  )
+
+  return (
+    <>
+      {contextHolder}
       <Modal
-        title='新建'
+        title='创建'
         open={open}
         onOk={handleCreateMachine}
         confirmLoading={confirmLoading}
@@ -77,14 +106,13 @@ export default function List() {
         okText='确定'
         cancelText='取消'
       >
-        <p>确定要创建吗？</p>
+        <p>输入名称</p>
+        <Input
+          placeholder='名称'
+          value={machineName}
+          onChange={(e) => setMachineName(e.target.value)}
+        />
       </Modal>
-    </>
-  )
-
-  return (
-    <>
-      {contextHolder}
 
       <div className='card'>
         <div className='card-header'>
@@ -109,14 +137,13 @@ export default function List() {
               </div>
             ) : (
               <div className='list'>
-                <ListItem machine={machinesData[0]} onDelete={handleDelete}></ListItem>
-
-                {/* {machinesData.map((machine) => (
+                {machinesData.map((machine) => (
                   <ListItem
                     machine={machine}
                     onDelete={handleDelete}
+                    onStop={handleStop}
                   ></ListItem>
-                ))} */}
+                ))}
               </div>
             )
           ) : (
@@ -124,38 +151,6 @@ export default function List() {
               <Skeleton active />
             </div>
           )}
-        </div>
-      </div>
-    </>
-  )
-}
-
-function ListItem({
-  machine,
-  onDelete
-}: {
-  machine: MachineInfo
-  // 异步函数
-  onDelete(machine: MachineInfo): Promise<any>
-}) {
-  // const onDelete = () =>
-  //   new Promise((resolve) => {
-  //     setTimeout(() => resolve(null), 3000)
-  //   })
-
-  return (
-    <>
-      <div className='list-item'>
-        <div>this is name {machine.id}</div>
-        <div>
-          <Popconfirm
-            title='确认要删除吗？'
-            okText='确认'
-            cancelText='取消'
-            onConfirm={() => onDelete(machine)}
-          >
-            <Button type='link'>删除</Button>
-          </Popconfirm>
         </div>
       </div>
     </>
