@@ -46,7 +46,7 @@ export default function Intro() {
       </Content>
 
       <Footer className='footer'>
-        <Link to='/'>
+        <Link to='/home'>
           <Button type='primary' shape='round' size='large'>
             开始入站
           </Button>
