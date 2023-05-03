@@ -1,6 +1,5 @@
 import { html } from './docs.md'
 import './Docs.scss'
-import './landsoul.css'
 import '../../compnents/Navigation/Navigation.scss'
 import { useNavigate } from 'react-router-dom'
 import { Image } from 'antd'
@@ -15,7 +14,6 @@ export default function Docs() {
 
   return (
     <>
-      {' '}
       <div className='navigation'>
         <div className='logo'>
           <Image
@@ -38,7 +36,7 @@ export default function Docs() {
         <div className='flex-grow'></div>
       </div>
       <main>
-        <div dangerouslySetInnerHTML={{ __html: html }}></div>
+        <div className='docs' dangerouslySetInnerHTML={{ __html: html }}></div>
       </main>
     </>
   )

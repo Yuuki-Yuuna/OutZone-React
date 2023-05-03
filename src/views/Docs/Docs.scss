@@ -6,3 +6,65 @@ h3 {
 main {
   padding: 2em;
 }
+
+.docs {
+  --landsoul-bg: #fff;
+  --landsoul-text: #3d424f;
+  --landsoul-shadow: #f4f4f5;
+  --landsoul-accent: #2563eb;
+  --landsoul-color: #e3e4e8;
+  --landsoul-time: 0.3s;
+  --landsoul-radius: 0.25em;
+  --landsoul-gradient: linear-gradient(#ccfcf7, #c4eae9, #bbd8db, #b3c6cd, #aab4bf);
+  table {
+    border-collapse: collapse;
+    -webkit-box-shadow: 0.1em 0.1em 0.05em var(--landsoul-shadow),
+      -0.1em -0.1em 0.05em var(--landsoul-shadow);
+    box-shadow: 0.1em 0.1em 0.05em var(--landsoul-shadow),
+      -0.1em -0.1em 0.05em var(--landsoul-shadow);
+    margin: 0.05em;
+  }
+  thead {
+    background-color: var(--landsoul-shadow);
+    color: var(--landsoul-text);
+  }
+  tbody tr {
+    background-color: var(--landsoul-bg);
+  }
+  tbody tr:nth-child(2n) {
+    background-color: var(--landsoul-shadow);
+  }
+  td,
+  th {
+    padding: 0.25em 0.5em;
+  }
+  blockquote {
+    border-left: 0.25rem solid var(--landsoul-shadow);
+    font-style: italic;
+    margin: 0.5rem 0;
+    padding: 0.5rem 1rem;
+  }
+  code,
+  kbd,
+  pre {
+    background-color: var(--landsoul-shadow);
+    border-radius: var(--landsoul-radius);
+  }
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: Consolas, monospace;
+  }
+  code,
+  kbd {
+    padding: 0.05em 0.2em;
+  }
+  pre {
+    padding: 0.5em 0.75em;
+  }
+  kbd {
+    border: solid rgba(0, 0, 0, 0.05);
+    border-width: 0.1em 0.1em 0.2em;
+  }
+}
