@@ -16,7 +16,7 @@ export default function ListItem({
       <div className='list-item'>
         <a
           target='_blank'
-          href={'http://file.re1ife.top/api/machine/' + machine.id}
+          href={`http://lecserver.re1ife.top:${machine.internalPort}/api/machine/${machine.id}`}
           style={{
             flexGrow: '1',
             padding: '0 1em',

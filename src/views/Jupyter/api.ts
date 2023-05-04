@@ -8,6 +8,7 @@ export type MachineInfo = {
   status: boolean // true is running false is stop
   updateDate: string
   userId: number
+  internalPort: number
 }
 
 export const getMachine = () => request.get<ResponseData<MachineInfo[]>>('/compute/machine')
