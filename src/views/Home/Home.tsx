@@ -174,47 +174,88 @@ const Home: React.FC = () => {
 
   const items: MenuProps['items'] = [
     {
-      key: 'file',
-      label: '我的文件',
-      icon: <FolderOutlined />,
-      className: 'menu-item',
+      key: 'cloudFile',
+      label: '云文件',
+      // icon: <FolderOutlined />,
+      className: 'cloud-file',
       children: [
         {
           key: 'all',
           label: '全部',
-          icon: <FolderOpenOutlined />
+          // icon: <FolderOpenOutlined />
         },
         {
-          key: 'image',
-          label: '图片',
-          icon: <FileImageOutlined />
+          key: 'businessFile',
+          label: '企业文档',
+          // icon: <FileImageOutlined />
         },
         {
-          key: 'document',
-          label: '文档',
-          icon: <FileOutlined />
+          key: 'businessProduct',
+          label: '企业产品',
+          // icon: <FileOutlined />
         },
         {
-          key: 'audio',
-          label: '音频',
-          icon: <CustomerServiceOutlined />
+          key: 'businessCase',
+          label: '商务案例',
+          // icon: <CustomerServiceOutlined />
         },
         {
-          key: 'video',
-          label: '视频',
-          icon: <PlayCircleOutlined />
+          key: 'trainingVideo',
+          label: '培训视频',
+          // icon: <PlayCircleOutlined />
+        },
+        // {
+        //   key: 'other',
+        //   label: '其它',
+        //   icon: <EllipsisOutlined />
+        // }
+      ]
+    },
+    {
+      key: 'cloudBackups',
+      label: '云备份',
+      // icon: <FolderOutlined />,
+      className: 'cloud-backups',
+      children: [
+        {
+          key: 'allBackups',
+          label: '全部备份',
+          // icon: <FolderOpenOutlined />
         },
         {
-          key: 'other',
-          label: '其它',
-          icon: <EllipsisOutlined />
-        }
+          key: 'addBackups',
+          label: '增量备份',
+          // icon: <FileImageOutlined />
+        },
+        {
+          key: 'differentBackups',
+          label: '差异备份',
+          // icon: <FileOutlined />
+        },
+      ]
+    },
+    {
+      key: 'cloudShare',
+      label: '云分享',
+      // icon: <FolderOutlined />,
+      className: 'cloud-share',
+      children: [
+        {
+          key: 'inShare',
+          label: '组织内分享',
+          // icon: <FolderOpenOutlined />
+        },
+        {
+          key: 'outShare',
+          label: '跨组织分享',
+          // icon: <FileImageOutlined />
+        },
       ]
     },
     {
       key: 'recycle',
       label: '回收站',
-      icon: <DeleteOutlined />,
+      // icon: <DeleteOutlined />,
       className: 'menu-item'
     }
   ]

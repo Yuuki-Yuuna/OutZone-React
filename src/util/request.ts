@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { getToken } from './secret'
 
-export const baseURL = 'http://file.re1ife.top/api'
+export const baseURL = 'http://172.23.252.223:8025/api'
 // http://172.23.252.223:8085/api
 
 const instance = axios.create({
